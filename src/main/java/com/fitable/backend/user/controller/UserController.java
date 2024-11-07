@@ -45,4 +45,15 @@ public class UserController {
         }
         return ResponseEntity.status(401).body("Invalid login credentials");
     }
+
+    // 사용자 정보 조회 (테스트 코드, 추후 수정)
+    @GetMapping("/{userId}")
+    public ResponseEntity<User> getUserById(@PathVariable Long userId) {
+        User user = userService.getUserById(userId);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
