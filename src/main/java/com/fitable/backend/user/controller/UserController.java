@@ -35,4 +35,25 @@ public class UserController {
         userService.registerUser(userRequest);
         return ResponseEntity.ok("User registered successfully");
     }
+
+    // 로그인
+    @PostMapping("/login")
+    public ResponseEntity<String> loginUser(@RequestBody UserRequest userRequest) {
+        Optional<User> existingUser = userService.findByLoginId(userRequest.getLoginId());
+        if (existingUser.isPresent() && userService.getPasswordEncoder().matches(userRequest.getPassword(), existingUser.get().getPassword())) {
+            return ResponseEntity.ok("Login successful");
+        }
+        return ResponseEntity.status(401).body("Invalid login credentials");
+    }
+
+    // 사용자 정보 조회 (테스트 코드, 추후 수정)
+    @GetMapping("/{userId}")
+    public ResponseEntity<User> getUserById(@PathVariable Long userId) {
+        User user = userService.getUserById(userId);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
