@@ -33,4 +33,8 @@ public class UserService {
     public Optional<User> findByLoginId(String loginId) {
         return userRepository.findByLoginId(loginId);
     }
+
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
 }
