@@ -29,4 +29,8 @@ public class UserService {
 
         return userRepository.save(user);
     }
+
+    public Optional<User> findByLoginId(String loginId) {
+        return userRepository.findByLoginId(loginId);
+    }
 }
