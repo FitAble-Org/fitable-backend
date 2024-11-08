@@ -1,13 +1,17 @@
 package com.fitable.backend.user.controller;
 
 import com.fitable.backend.user.dto.LoginRequest;
+import com.fitable.backend.user.dto.RefreshTokenRequest;
 import com.fitable.backend.user.dto.RegisterRequest;
 import com.fitable.backend.user.entity.User;
+import com.fitable.backend.user.service.CustomUserDetailsService;
 import com.fitable.backend.user.service.UserService;
+import com.fitable.backend.user.util.JwtTokenUtil;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -17,9 +21,13 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final JwtTokenUtil jwtTokenUtil;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, CustomUserDetailsService customUserDetailsService, JwtTokenUtil jwtTokenUtil) {
         this.userService = userService;
+        this.customUserDetailsService = customUserDetailsService;
+        this.jwtTokenUtil = jwtTokenUtil;
     }
 
     // 회원가입
@@ -73,6 +81,22 @@ public class UserController {
             return ResponseEntity.ok(user);
         } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<String> refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
+        try {
+            String username = jwtTokenUtil.extractUsername(refreshTokenRequest.getRefreshToken());
+
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+            if (jwtTokenUtil.validateToken(refreshTokenRequest.getRefreshToken(), userDetails)) {
+                String newAccessToken = jwtTokenUtil.generateToken(userDetails);
+                return ResponseEntity.ok(newAccessToken);  // 새 Access Token 문자열 반환
+            }
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid refresh token");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error refreshing token");
         }
     }
 }
