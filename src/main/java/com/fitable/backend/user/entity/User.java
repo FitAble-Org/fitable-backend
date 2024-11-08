@@ -39,6 +39,9 @@ public class User {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
+    public User() {
+    }
+
     public User(String loginId, String password, AgeGroup ageGroup, Gender gender, DisabilityType disabilityType, DisabilityLevel disabilityLevel) {
         this.loginId = loginId;
         this.password = password;
