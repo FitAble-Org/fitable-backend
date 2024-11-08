@@ -29,8 +29,8 @@ public class SportsFacility {
     private String fcltyCourseSdivNm;  // 시설 강좌 구분명
 
     @CsvBindByName(column = "FCLTY_X_CRDNT_VALUE")
-    private String fcltyXCrdntValue;  // 시설 X 좌표값
+    private double fcltyXCrdntValue;  // 시설 X 좌표값
 
     @CsvBindByName(column = "FCLTY_Y_CRDNT_VALUE")
-    private String fcltyYCrdntValue;  // 시설 Y 좌표값
+    private double fcltyYCrdntValue;  // 시설 Y 좌표값
 }
