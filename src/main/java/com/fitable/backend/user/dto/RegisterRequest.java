@@ -4,8 +4,7 @@ import com.fitable.backend.user.entity.User;
 import lombok.Data;
 
 @Data
-public class UserRequest {
-
+public class RegisterRequest {
     private String loginId;
     private String password;
     private User.AgeGroup ageGroup; // 청소년, 청년, 중년, 장년
