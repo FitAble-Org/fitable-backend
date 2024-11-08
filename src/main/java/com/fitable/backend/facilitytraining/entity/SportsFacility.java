@@ -1,4 +1,4 @@
-package com.fitable.backend.publicdata.entity;
+package com.fitable.backend.facilitytraining.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

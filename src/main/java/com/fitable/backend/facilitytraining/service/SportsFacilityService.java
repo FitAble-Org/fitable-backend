@@ -1,10 +1,10 @@
-package com.fitable.backend.publicdata.service;
+package com.fitable.backend.facilitytraining.service;
 
-import com.fitable.backend.publicdata.entity.SportsFacility;
-import com.fitable.backend.publicdata.repository.SportsFacilityRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.fitable.backend.facilitytraining.entity.SportsFacility;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
