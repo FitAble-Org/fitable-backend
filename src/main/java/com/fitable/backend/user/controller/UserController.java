@@ -2,16 +2,12 @@ package com.fitable.backend.user.controller;
 
 import com.fitable.backend.user.dto.LoginRequest;
 import com.fitable.backend.user.dto.RegisterRequest;
-import com.fitable.backend.user.dto.UserRequest;
 import com.fitable.backend.user.entity.User;
 import com.fitable.backend.user.service.UserService;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -37,9 +33,9 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody UserRequest userRequest) {
-        Optional<User> existingUser = userService.findByLoginId(userRequest.getLoginId());
-        if (existingUser.isPresent() && userService.getPasswordEncoder().matches(userRequest.getPassword(), existingUser.get().getPassword())) {
+    public ResponseEntity<String> loginUser(@RequestBody LoginRequest loginRequest) {
+        Optional<User> existingUser = userService.findByLoginId(loginRequest.getLoginId());
+        if (existingUser.isPresent() && userService.getPasswordEncoder().matches(loginRequest.getPassword(), existingUser.get().getPassword())) {
             return ResponseEntity.ok("Login successful");
         }
         return ResponseEntity.status(401).body("Invalid login credentials");
