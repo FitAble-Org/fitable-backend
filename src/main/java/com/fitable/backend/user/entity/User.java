@@ -2,6 +2,7 @@ package com.fitable.backend.user.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -52,31 +53,67 @@ public class User {
     }
 
     // 나이
+    @Getter
     public enum AgeGroup {
-        TEENAGER, // 청소년 10대
-        YOUNG_ADULT, // 청년 2~30대
-        MIDDLE_AGED, // 중년 4~50대
-        SENIOR // 장년 60대 이상
+        TEENAGER("10대"), // 청소년 10대
+        YOUNG_ADULT("20대 30대"), // 청년 2~30대
+        MIDDLE_AGED("40대 50대"), // 중년 4~50대
+        SENIOR("60대"); // 장년 60대 이상
+
+        private final String description;
+
+        AgeGroup(String description) {
+            this.description = description;
+        }
+
     }
 
     // 성별
+    @Getter
     public enum Gender {
-        FEMALE,
-        MALE
+        FEMALE("F"),
+        MALE("M");
+
+        private final String description;
+
+        Gender(String description) {
+            this.description = description;
+        }
+
     }
 
     // 장애 유형
+    @Getter
     public enum DisabilityType {
-        INTELLECTUAL, // 지적장애
-        HEARING, // 청각장애
-        VISION, // 시각장애
-        SPINAL // 척수장애
+        INTELLECTUAL("지적장애"),
+        HEARING("청각장애"),
+        VISION("시각장애"),
+        SPINAL("척수장애");
+
+        private final String description;
+
+        DisabilityType(String description) {
+            this.description = description;
+        }
+
     }
 
     // 장애 등급
+    @Getter
     public enum DisabilityLevel {
-        LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5, LEVEL_6, // 1~6등급
-        PARTIAL_PARALYSIS, // 불완전마비
-        COMPLETE_PARALYSIS // 완전마비
+        LEVEL_1("1등급"),
+        LEVEL_2("2등급"),
+        LEVEL_3("3등급"),
+        LEVEL_4("4등급"),
+        LEVEL_5("5등급"),
+        LEVEL_6("6등급"),
+        PARTIAL_PARALYSIS("불완전 마비"),
+        COMPLETE_PARALYSIS("완전 마비");
+
+        private final String description;
+
+        DisabilityLevel(String description) {
+            this.description = description;
+        }
     }
 }
