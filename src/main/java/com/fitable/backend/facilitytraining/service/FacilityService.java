@@ -6,15 +6,16 @@ import com.fitable.backend.facilitytraining.dto.LocationRequest;
 import com.fitable.backend.facilitytraining.entity.Facility;
 import com.fitable.backend.facilitytraining.repository.FacilityRepository;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class FacilityService {
 
     @Autowired
@@ -22,8 +23,6 @@ public class FacilityService {
 
     @Autowired
     private OpenAiService openAiService;
-
-    private static final Logger logger = Logger.getLogger(FacilityService.class.getName());
 
     public Mono<FacilityItemNamesWithGptResponse> findFacilitiesWithinRadius(LocationRequest locationRequest, HttpSession session) {
         double x = locationRequest.getX();
@@ -47,7 +46,7 @@ public class FacilityService {
         session.setAttribute("facilityResponses", facilityResponses);
 
         // 로깅 추가: 저장된 facilityResponses 로깅
-        logger.info("Saved facilityResponses in session: " + facilityResponses);
+        log.info("Saved facilityResponses in session: " + facilityResponses);
 
         // itemNm 필드만 추출하여 중복을 제거한 후 리스트로 변환
         List<String> itemNames = facilityResponses.stream()
@@ -68,19 +67,19 @@ public class FacilityService {
 
     public List<FacilityResponse> filterFacilitiesByItemName(List<FacilityResponse> facilityResponses, String itemName) {
         if (facilityResponses == null) {
-            logger.warning("Facility responses in session are null.");
+            log.warn("Facility responses in session are null.");
             return List.of();
         }
 
         // 로깅 추가: 세션에서 가져온 facilityResponses 로깅
-        logger.info("Retrieved facilityResponses from session: " + facilityResponses);
+        log.info("Retrieved facilityResponses from session: " + facilityResponses);
 
         List<FacilityResponse> filteredResponses = facilityResponses.stream()
                 .filter(response -> response.getItemNm().equals(itemName))
                 .collect(Collectors.toList());
 
         // 로깅 추가: 필터링된 결과 로깅
-        logger.info("Filtered facilityResponses by itemName (" + itemName + "): " + filteredResponses);
+        log.info("Filtered facilityResponses by itemName (" + itemName + "): " + filteredResponses);
 
         return filteredResponses;
     }
