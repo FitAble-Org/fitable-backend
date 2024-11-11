@@ -29,7 +29,7 @@ public class OpenAiService {
 
     private Map<String, Object> createRequestBody(String prompt) {
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("model", "gpt-4-turbo"); // 모델 선택
+        requestBody.put("model", "gpt-4o-mini"); // 모델 선택
         requestBody.put("max_tokens", 300); // 원하는 토큰 수
         requestBody.put("temperature", 0.8); // 응답의 창의성
 
