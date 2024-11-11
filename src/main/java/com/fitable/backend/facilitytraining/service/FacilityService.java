@@ -1,9 +1,9 @@
 package com.fitable.backend.facilitytraining.service;
 
 import com.fitable.backend.facilitytraining.dto.LocationRequest;
-import com.fitable.backend.facilitytraining.dto.SportsFacilityResponse;
-import com.fitable.backend.facilitytraining.entity.SportsFacility;
-import com.fitable.backend.facilitytraining.repository.SportsFacilityRepository;
+import com.fitable.backend.facilitytraining.dto.FacilityResponse;
+import com.fitable.backend.facilitytraining.entity.Facility;
+import com.fitable.backend.facilitytraining.repository.FacilityRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,25 +12,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class SportsFacilityService {
+public class FacilityService {
 
     @Autowired
-    private SportsFacilityRepository sportsFacilityRepository;
+    private FacilityRepository facilityRepository;
 
     @Transactional
-    public void saveAllFacilities(List<SportsFacility> facilities) {
-        sportsFacilityRepository.saveAll(facilities);
+    public void saveAllFacilities(List<Facility> facilities) {
+        facilityRepository.saveAll(facilities);
     }
 
-    public List<SportsFacilityResponse> findFacilitiesWithinRadius(LocationRequest locationRequest) {
+    public List<FacilityResponse> findFacilitiesWithinRadius(LocationRequest locationRequest) {
         double x = locationRequest.getX();
         double y = locationRequest.getY();
         double radiusKm = locationRequest.getRadiusKm();
 
-        List<SportsFacility> facilities = sportsFacilityRepository.findFacilitiesWithinRadius(x, y, radiusKm);
+        List<Facility> facilities = facilityRepository.findFacilitiesWithinRadius(x, y, radiusKm);
 
         return facilities.stream().map(facility -> {
-            SportsFacilityResponse response = new SportsFacilityResponse();
+            FacilityResponse response = new FacilityResponse();
             response.setId(facility.getId());
             response.setFcltyNm(facility.getFcltyNm());
             response.setFcltyAddr(facility.getFcltyAddr());
