@@ -33,6 +33,7 @@ public class OpenAiService {
                 .map(this::extractContent); // JSON 응답에서 content 필드만 추출
     }
 
+    // 리팩토링 시 상수화하기
     private Map<String, Object> createRequestBody(String prompt) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("model", "gpt-4o-mini");
