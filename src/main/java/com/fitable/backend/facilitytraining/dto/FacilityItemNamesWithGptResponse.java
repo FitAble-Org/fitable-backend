@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-public class FacilityItemsWithGptResponse {  // 새 이름으로 변경
+public class FacilityItemNamesWithGptResponse {
     private List<String> itemNames;  // itemNm만 포함하는 리스트
     private String gptResponseContent;
 }
