@@ -12,6 +12,7 @@
 //
 //import java.io.InputStreamReader;
 //import java.io.Reader;
+//import java.nio.charset.StandardCharsets;
 //import java.util.List;
 //
 //@Component
@@ -42,7 +43,7 @@
 //        sportsFacilityService.saveAllFacilities(secondFacilities);
 //
 //        // 추천 운동 데이터 로드
-//        Reader recommendedExerciseReader = new InputStreamReader(new ClassPathResource("recommended_exercises.csv").getInputStream());
+//        Reader recommendedExerciseReader = new InputStreamReader(new ClassPathResource("recommended_exercises.csv").getInputStream(), StandardCharsets.UTF_8);
 //        List<RecommendedExercise> exercises = new CsvToBeanBuilder<RecommendedExercise>(recommendedExerciseReader)
 //                .withType(RecommendedExercise.class)
 //                .build()
