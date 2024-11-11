@@ -3,13 +3,13 @@ package com.fitable.backend.hometraining.dto;
 import lombok.Data;
 
 @Data
-public class HomeTrainingResponse {
+public class RecommendedExerciseResponse {
     private String exerciseName;
     private int movementRank;
     private String rankName;
     private String sportsStep;
 
-    public HomeTrainingResponse(String exerciseName, int movementRank, String sportsStep) {
+    public RecommendedExerciseResponse(String exerciseName, int movementRank, String sportsStep) {
         this.exerciseName = exerciseName;
         this.movementRank = movementRank;
         this.sportsStep = sportsStep;
