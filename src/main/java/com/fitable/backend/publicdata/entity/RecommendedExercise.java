@@ -1,5 +1,6 @@
 package com.fitable.backend.publicdata.entity;
 
+import com.opencsv.bean.CsvBindByPosition;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,6 +18,9 @@ public class RecommendedExercise {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @CsvBindByName(column = "AGRDE_FLAG_NM")
+    private String age;
 
     @CsvBindByName(column = "SEXDSTN_FLAG_CD")
     private String genderCode;
