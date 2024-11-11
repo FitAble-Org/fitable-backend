@@ -5,6 +5,7 @@ import com.fitable.backend.facilitytraining.dto.FacilityResponse;
 import com.fitable.backend.facilitytraining.dto.LocationRequest;
 import com.fitable.backend.facilitytraining.service.FacilityService;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/facilities")
+@Slf4j
 public class FacilityController {
 
     @Autowired
@@ -27,6 +29,8 @@ public class FacilityController {
     public List<FacilityResponse> getFacilitiesByItemName(@RequestParam String itemName, HttpSession session) {
         // 세션에서 facilityResponses 가져오기
         List<FacilityResponse> facilityResponses = (List<FacilityResponse>) session.getAttribute("facilityResponses");
+
+        log.info("Retrieved facilityResponses from session: " + facilityResponses);
 
         if (facilityResponses == null) {
             throw new IllegalStateException("근처 시설 데이터가 존재하지 않습니다. 먼저 /nearby 엔드포인트를 호출하십시오.");
