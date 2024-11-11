@@ -1,4 +1,4 @@
-package com.fitable.backend.homeTraining.entity;
+package com.fitable.backend.hometraining.entity;
 
 import com.fitable.backend.user.entity.User;
 import jakarta.persistence.*;

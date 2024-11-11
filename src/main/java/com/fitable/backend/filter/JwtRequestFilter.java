@@ -5,7 +5,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -42,7 +44,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
 
         // username이 있고, SecurityContext에서 아직 인증되지 않은 경우 처리
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (username != null && (authentication == null || authentication instanceof AnonymousAuthenticationToken)) {
             // UserDetailsService를 사용하여 UserDetails 객체 로드
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
