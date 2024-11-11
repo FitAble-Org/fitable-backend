@@ -1,8 +1,11 @@
 package com.fitable.backend.facilitytraining.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,36 +15,46 @@ import java.util.Map;
 public class OpenAiService {
 
     private final WebClient webClient;
+    private final ObjectMapper objectMapper;  // JSON 파싱을 위한 ObjectMapper 추가
 
-    public OpenAiService() {
+    public OpenAiService(@Value("${openai.api.key}") String apiKey) {
         this.webClient = WebClient.builder()
                 .baseUrl("https://api.openai.com/v1/chat/completions")
-                .defaultHeader("Authorization", "Bearer ") // 실제 API 키로 교체
+                .defaultHeader("Authorization", "Bearer " + apiKey) // 실제 API 키로 교체
                 .build();
+        this.objectMapper = new ObjectMapper();  // ObjectMapper 초기화
     }
 
     public Mono<String> getGptResponse(String prompt) {
         return webClient.post()
                 .bodyValue(createRequestBody(prompt))
                 .retrieve()
-                .bodyToMono(String.class);
+                .bodyToMono(String.class)
+                .map(this::extractContent); // JSON 응답에서 content 필드만 추출
     }
 
     private Map<String, Object> createRequestBody(String prompt) {
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("model", "gpt-4o-mini"); // 모델 선택
-        requestBody.put("max_tokens", 300); // 원하는 토큰 수
-        requestBody.put("temperature", 0.8); // 응답의 창의성
+        requestBody.put("model", "gpt-4o-mini");
+        requestBody.put("max_tokens", 300);
+        requestBody.put("temperature", 0.8);
 
-        // 챗 메시지 형식으로 prompt 전달
         Map<String, String> message = new HashMap<>();
         message.put("role", "user");
-        message.put("content", "아래 요청사항에 맞게 예시)에 나온 형식대로 보내줘. 예시와 100% 동일한 형식으로 보내" +
-                "줄넘기, 탁구, 필라테스, 댄스, 볼링, 태권도, 수영 중에 사용자가 하나를 고를 수 있도록 네/아니오로 대답 가능한 질문 3개 한 문장씩만 만들어줘. 운동명을 언급하진 마.\n" +
-                "이후에 8가지 경우의 답변에 대해 매칭되는 운동명도 마지막에 보내줘. 8가지 경우에 대해 3개의 아니오(0)/네(1) 응답을 2진수로 만든 순서로 해서 아래처럼 운동명만 보내줘.\n" +
-                "예시) 구기 종목을 하고 싶으신가요?\n 구기 종목을 하고 싶으신가요?\n 구기 종목을 하고 싶으신가요?\n 줄넘기/탁구/태권도/태권도/줄넘기/탁구/태권도/태권도/");
+        message.put("content", prompt);
 
         requestBody.put("messages", List.of(message));
         return requestBody;
+    }
+
+    // JSON 응답에서 content 필드만 추출하는 메서드
+    private String extractContent(String jsonResponse) {
+        try {
+            JsonNode root = objectMapper.readTree(jsonResponse);
+            return root.path("choices").get(0).path("message").path("content").asText();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error parsing content";
+        }
     }
 }
