@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SportsFacilityResponse {
+public class FacilityResponse {
     private Long id;
     private String fcltyNm;  // 시설명
     private String fcltyAddr;  // 시설주소
