@@ -1,6 +1,6 @@
-package com.fitable.backend.publicdata.repository;
+package com.fitable.backend.hometraining.repository;
 
-import com.fitable.backend.publicdata.entity.RecommendedExercise;
+import com.fitable.backend.hometraining.entity.RecommendedExercise;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

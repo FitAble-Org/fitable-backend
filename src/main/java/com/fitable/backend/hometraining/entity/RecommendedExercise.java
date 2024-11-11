@@ -1,4 +1,4 @@
-package com.fitable.backend.publicdata.entity;
+package com.fitable.backend.hometraining.entity;
 
 import com.opencsv.bean.CsvBindByPosition;
 import jakarta.persistence.Entity;

@@ -1,7 +1,7 @@
 package com.fitable.backend.hometraining.controller;
 
-import com.fitable.backend.hometraining.dto.HomeTrainingResponse;
-import com.fitable.backend.hometraining.service.HomeTrainingService;
+import com.fitable.backend.hometraining.dto.RecommendedExerciseResponse;
+import com.fitable.backend.hometraining.service.RecommendedExerciseService;
 import com.fitable.backend.user.entity.User;
 import com.fitable.backend.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,17 +16,17 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("api/home-training")
-public class HomeTrainingController {
-    private final HomeTrainingService homeTrainingService;
+public class RecommendedExerciseController {
+    private final RecommendedExerciseService recommendedExerciseService;
     private final UserService userService;
     @Autowired
-    public HomeTrainingController(HomeTrainingService homeTrainingService, UserService userService){
-        this.homeTrainingService = homeTrainingService;
+    public RecommendedExerciseController(RecommendedExerciseService recommendedExerciseService, UserService userService){
+        this.recommendedExerciseService = recommendedExerciseService;
         this.userService = userService;
     }
 
     @GetMapping
-    public ResponseEntity<List<HomeTrainingResponse>> getHomeTraining(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<List<RecommendedExerciseResponse>> getRecommendedExercise(@AuthenticationPrincipal UserDetails userDetails) {
 
         if(userDetails==null){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -36,8 +36,8 @@ public class HomeTrainingController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        List<HomeTrainingResponse> homeTrainingList = homeTrainingService.getHomeTraining(user.get());
+        List<RecommendedExerciseResponse> RecommendedExerciseList = recommendedExerciseService.getRecommendedExercise(user.get());
 
-        return new ResponseEntity<>(homeTrainingList, HttpStatus.OK);
+        return new ResponseEntity<>(RecommendedExerciseList, HttpStatus.OK);
     }
 }
