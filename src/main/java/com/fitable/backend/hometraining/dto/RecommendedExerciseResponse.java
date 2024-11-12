@@ -4,12 +4,14 @@ import lombok.Data;
 
 @Data
 public class RecommendedExerciseResponse {
+    private long exerciseId;
     private String exerciseName;
     private int movementRank;
     private String rankName;
     private String sportsStep;
 
-    public RecommendedExerciseResponse(String exerciseName, int movementRank, String sportsStep) {
+    public RecommendedExerciseResponse(long exerciseId, String exerciseName, int movementRank, String sportsStep) {
+        this.exerciseId = exerciseId;
         this.exerciseName = exerciseName;
         this.movementRank = movementRank;
         this.sportsStep = sportsStep;
