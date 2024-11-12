@@ -39,6 +39,7 @@ public class RecommendedExerciseService {
         }
         return recommendedExercises.stream()
                 .map(recommendedExercise -> new RecommendedExerciseResponse(
+                        recommendedExercise.getId(),
                         recommendedExercise.getRecommendedMovement(),
                         recommendedExercise.getMovementRank(),
                         recommendedExercise.getSportsStep()
