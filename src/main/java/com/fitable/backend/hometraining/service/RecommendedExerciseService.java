@@ -45,4 +45,8 @@ public class RecommendedExerciseService {
                 ))
                 .collect(Collectors.toList());
     }
+
+    public void saveAllExercises(List<RecommendedExercise> exercises) {
+        recommendedExerciseRepository.saveAll(exercises);
+    }
 }

@@ -24,6 +24,15 @@ public class FacilityService {
     @Autowired
     private OpenAiService openAiService;
 
+    @Transactional
+    public void saveAllFacilities(List<Facility> facilities) {
+        facilityRepository.saveAll(facilities);
+    }
+
+    public Optional<Facility> getFacilityById(long id){
+        return facilityRepository.findById(id);
+    }
+
     public Mono<FacilityItemNamesWithGptResponse> findFacilitiesWithinRadius(LocationRequest locationRequest, HttpSession session) {
         double x = locationRequest.getX();
         double y = locationRequest.getY();
