@@ -40,9 +40,9 @@ pipeline {
                         string(credentialsId: 'JWT_SECRET_KEY', variable: 'JWT_SECRET_KEY'),
                         string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY')
                     ]) {
-                        // Gradle 빌드 실행
+                        // Gradle 빌드 실행 및 테스트 프로파일 활성화
                         sh """
-                            ./gradlew clean build \
+                            ./gradlew clean build -Dspring.profiles.active=test \
                             -Djwt.secret-key=$JWT_SECRET_KEY \
                             -Dopenai.api.key=$OPENAI_API_KEY
                         """
