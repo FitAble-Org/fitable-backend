@@ -27,14 +27,14 @@ import java.util.Optional;
 @RestController
 @RequestMapping("api/calendar")
 public class CalendarController {
-    private final CalendarService CalendarService;
+    private final CalendarService calendarService;
     private final RecommendedExerciseService recommendedExerciseService;
     private final FacilityService facilityService;
     private final UserService userService;
 
     @Autowired
-    public CalendarController(CalendarService CalendarService, RecommendedExerciseService recommendedExerciseService, FacilityService facilityService, UserService userService){
-        this.CalendarService = CalendarService;
+    public CalendarController(CalendarService calendarService, RecommendedExerciseService recommendedExerciseService, FacilityService facilityService, UserService userService){
+        this.calendarService = calendarService;
         this.recommendedExerciseService = recommendedExerciseService;
         this.facilityService = facilityService;
         this.userService = userService;
@@ -53,31 +53,34 @@ public class CalendarController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 
-            if(request.getExerciseType()== Calendar.ExerciseType.HOME){
+            if(request.getExerciseType().equals(Calendar.ExerciseType.HOME.getDescription())){
                 Optional<RecommendedExercise> recommendedExercise = recommendedExerciseService.getRecommendedExerciseById(request.getExerciseId());
                 if(recommendedExercise.isEmpty()){
                     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
                 }
 
-                CalendarService.addHomeTrainingCalendar(request, user.get(), recommendedExercise.get());
+                calendarService.addHomeTrainingCalendar(request, user.get(), recommendedExercise.get());
             }
-            else if(request.getExerciseType()== Calendar.ExerciseType.OUTDOOR){
+            else if(request.getExerciseType().equals(Calendar.ExerciseType.OUTDOOR.getDescription())){
                 Optional<Facility> facility = facilityService.getFacilityById(request.getExerciseId());
                 if(facility.isEmpty()){
                     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
                 }
 
 
-                CalendarService.addFacilityCalendar(request, user.get(), facility.get());
+                calendarService.addFacilityCalendar(request, user.get(), facility.get());
+            }
+            else{
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("운동 타입이 다릅니다.");
             }
             return new ResponseEntity<>("Calendar added successfully", HttpStatus.CREATED);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @GetMapping("/{date}")
-//  date: "yyyy-mm-dd"
     public ResponseEntity<List<CalendarResponse>> getCalendar(@AuthenticationPrincipal UserDetails userDetails, @PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         if(userDetails==null){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -88,7 +91,21 @@ public class CalendarController {
         if (user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        List<CalendarResponse> CalendarList = CalendarService.getCalendarsByDate(date, user.get());
+        List<CalendarResponse> CalendarList = calendarService.getCalendarsByDate(date, user.get());
+        return new ResponseEntity<>(CalendarList, HttpStatus.OK);
+    }
+
+    @GetMapping("/{year}/{month}")
+    public ResponseEntity<List<CalendarResponse>> getCalendar(@AuthenticationPrincipal UserDetails userDetails, @PathVariable("year") int year, @PathVariable("month") int month) {
+        if(userDetails==null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Optional<User> user = userService.findByLoginId(userDetails.getUsername());
+
+        if (user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        List<CalendarResponse> CalendarList = calendarService.getCalendarsByMonth(year, month, user.get());
         return new ResponseEntity<>(CalendarList, HttpStatus.OK);
     }
 }

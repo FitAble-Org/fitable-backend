@@ -7,5 +7,5 @@ import lombok.Data;
 public class AddCalendarRequest  {
     private long exerciseId;
     private int duration;
-    private Calendar.ExerciseType exerciseType;
+    private String exerciseType;
 }

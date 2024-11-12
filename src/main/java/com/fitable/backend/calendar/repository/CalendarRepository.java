@@ -10,4 +10,7 @@ import java.util.List;
 
 public interface CalendarRepository extends JpaRepository<Calendar, Long> {
     List<Calendar> findByDatePerformedAndUser(LocalDate date, User user);
+
+    List<Calendar> findByDatePerformedBetweenAndUser(LocalDate startDate, LocalDate endDate, User user);
+
 }

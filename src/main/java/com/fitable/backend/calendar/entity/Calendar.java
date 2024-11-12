@@ -58,13 +58,22 @@ public class Calendar {
 
     @Getter
     public enum ExerciseType {
-        HOME("가정 운동"),
-        OUTDOOR("외부 운동");
+        HOME("가정운동"),
+        OUTDOOR("외부운동");
 
         private final String description;
 
         ExerciseType(String description) {
             this.description = description;
+        }
+
+        public static ExerciseType fromDescription(String description) {
+            for (ExerciseType type : ExerciseType.values()) {
+                if (type.description.equals(description)) {
+                    return type;
+                }
+            }
+            throw new IllegalArgumentException("Unknown description: " + description);
         }
     }
 }

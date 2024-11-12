@@ -11,12 +11,12 @@ public class CalendarResponse {
     private String exerciseName;
     private String exerciseType;
     private int duration;
-    private LocalDate datePerformed ;
+    private LocalDate datePerformed;
 
     public CalendarResponse(){}
 
     public CalendarResponse(Long calendarId, Long exerciseId, String exerciseName, String exerciseType, int duration, LocalDate datePerformed ) {
-        this.calendarId = this.calendarId;
+        this.calendarId = calendarId;
         this.exerciseId = exerciseId;
         this.exerciseName = exerciseName;
         this.exerciseType = exerciseType;
