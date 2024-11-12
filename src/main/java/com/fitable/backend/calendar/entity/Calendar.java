@@ -1,8 +1,11 @@
 package com.fitable.backend.calendar.entity;
 
+import com.fitable.backend.facilitytraining.entity.Facility;
+import com.fitable.backend.hometraining.entity.RecommendedExercise;
 import com.fitable.backend.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -17,10 +20,16 @@ public class Calendar {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long CalendarId;
 
-    @Enumerated(EnumType.STRING)
-    private RecommendationLevel recommendationLevel;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "recommended_exercise_id", referencedColumnName = "id", nullable = true)
+    private RecommendedExercise recommendedExercise;
 
-    private String exerciseName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "facility_id", referencedColumnName = "id", nullable = true)
+    private Facility facility;
+
+    @Enumerated(EnumType.STRING)
+    private ExerciseType exerciseType;
 
     private int duration;
 
@@ -33,16 +42,29 @@ public class Calendar {
 
     public Calendar() {}
 
-    public Calendar(String exerciseName, RecommendationLevel recommendationLevel, int duration, User user) {
-        this.exerciseName = exerciseName;
-        this.recommendationLevel = recommendationLevel;
+    public Calendar(RecommendedExercise recommendedExercise, ExerciseType exerciseType, int duration, User user) {
+        this.recommendedExercise = recommendedExercise;
+        this.exerciseType = exerciseType;
         this.duration = duration;
         this.user = user;
     }
 
-    public enum RecommendationLevel {
-        HIGH,
-        MID,
-        LOW
+    public Calendar(Facility facility, ExerciseType exerciseType, int duration, User user) {
+        this.facility = facility;
+        this.exerciseType = exerciseType;
+        this.duration = duration;
+        this.user = user;
+    }
+
+    @Getter
+    public enum ExerciseType {
+        HOME("가정 운동"),
+        OUTDOOR("외부 운동");
+
+        private final String description;
+
+        ExerciseType(String description) {
+            this.description = description;
+        }
     }
 }
