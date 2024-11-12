@@ -4,6 +4,8 @@ import com.fitable.backend.calendar.dto.AddCalendarRequest;
 import com.fitable.backend.calendar.dto.CalendarResponse;
 import com.fitable.backend.calendar.entity.Calendar;
 import com.fitable.backend.calendar.repository.CalendarRepository;
+import com.fitable.backend.facilitytraining.entity.Facility;
+import com.fitable.backend.hometraining.entity.RecommendedExercise;
 import com.fitable.backend.user.entity.User;
 import org.springframework.stereotype.Service;
 
@@ -19,21 +21,23 @@ public class CalendarService {
         this.CalendarRepository = CalendarRepository;
     }
 
-    public void addCalendar(AddCalendarRequest addCalendarRequest, User user) {
-        Calendar.RecommendationLevel recommendationLevel;
-
-        try {
-            recommendationLevel = Calendar.RecommendationLevel.valueOf(
-                    addCalendarRequest.getRecommendationLevel().toUpperCase()
-            );
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid recommendation level: " + addCalendarRequest.getRecommendationLevel());
-        }
+    public void addHomeTrainingCalendar(AddCalendarRequest request, User user, RecommendedExercise recommendedExercise) {
 
         Calendar Calendar = new Calendar(
-                addCalendarRequest.getExerciseName(),
-                recommendationLevel,
-                addCalendarRequest.getDuration(),
+                recommendedExercise,
+                request.getExerciseType(),
+                request.getDuration(),
+                user
+        );
+
+        CalendarRepository.save(Calendar);
+    }
+
+    public void addFacilityCalendar(AddCalendarRequest request, User user, Facility facility) {
+        Calendar Calendar = new Calendar(
+                facility,
+                request.getExerciseType(),
+                request.getDuration(),
                 user
         );
 
@@ -43,12 +47,23 @@ public class CalendarService {
     public List<CalendarResponse> getCalendarsByDate(LocalDate date, User user) {
         List<Calendar> Calendars = CalendarRepository.findByDatePerformedAndUser(date, user);
         return Calendars.stream()
-                .map(Calendar -> new CalendarResponse(
-                        Calendar.getExerciseName(),
-                        Calendar.getRecommendationLevel().toString(),
-                        Calendar.getDuration(),
-                        Calendar.getDatePerformed()
-                ))
+                .map(calendar -> {
+                    CalendarResponse res = new CalendarResponse();
+                    res.setCalendarId(calendar.getCalendarId());
+                    res.setDatePerformed(calendar.getDatePerformed());
+                    res.setDuration(calendar.getDuration());
+                    res.setExerciseType(calendar.getExerciseType().getDescription());
+                    if(calendar.getExerciseType()==Calendar.ExerciseType.HOME){
+                        res.setExerciseName(calendar.getRecommendedExercise().getRecommendedMovement());
+                        res.setExerciseId(calendar.getRecommendedExercise().getId());
+                    }
+                    else if(calendar.getExerciseType()==Calendar.ExerciseType.OUTDOOR){
+                        res.setExerciseName(calendar.getFacility().getItemNm());
+                        res.setExerciseId(calendar.getFacility().getId());
+                    }
+                    return res;
+                }
+                )
                 .collect(Collectors.toList());
 
     }

@@ -7,6 +7,7 @@ import com.fitable.backend.user.entity.User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,8 +19,11 @@ public class RecommendedExerciseService {
         this.recommendedExerciseRepository = recommendedExerciseRepository;
     }
 
+    public Optional<RecommendedExercise> getRecommendedExerciseById(long id){
+        return recommendedExerciseRepository.findById(id);
+    }
 
-    public List<RecommendedExerciseResponse> getRecommendedExercise(User user) {
+    public List<RecommendedExerciseResponse> getRecommendedExerciseByUserInfo(User user) {
         String[] ageGroup = user.getAgeGroup().getDescription().split(" ");
         List<RecommendedExercise> recommendedExercises;
         if(ageGroup.length==1) {

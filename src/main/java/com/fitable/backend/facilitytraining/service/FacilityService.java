@@ -6,12 +6,14 @@ import com.fitable.backend.facilitytraining.dto.LocationRequest;
 import com.fitable.backend.facilitytraining.entity.Facility;
 import com.fitable.backend.facilitytraining.repository.FacilityRepository;
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
