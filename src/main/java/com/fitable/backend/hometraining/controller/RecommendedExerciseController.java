@@ -36,7 +36,7 @@ public class RecommendedExerciseController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        List<RecommendedExerciseResponse> RecommendedExerciseList = recommendedExerciseService.getRecommendedExercise(user.get());
+        List<RecommendedExerciseResponse> RecommendedExerciseList = recommendedExerciseService.getRecommendedExerciseByUserInfo(user.get());
 
         return new ResponseEntity<>(RecommendedExerciseList, HttpStatus.OK);
     }
