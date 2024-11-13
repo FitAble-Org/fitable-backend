@@ -2,11 +2,15 @@ package com.fitable.backend.calendar.service;
 
 import com.fitable.backend.calendar.dto.AddCalendarRequest;
 import com.fitable.backend.calendar.dto.CalendarResponse;
+import com.fitable.backend.calendar.dto.UpdateCalendarRequest;
 import com.fitable.backend.calendar.entity.Calendar;
 import com.fitable.backend.calendar.repository.CalendarRepository;
 import com.fitable.backend.facilitytraining.entity.Facility;
 import com.fitable.backend.hometraining.entity.RecommendedExercise;
 import com.fitable.backend.user.entity.User;
+import com.fitable.backend.user.service.UserService;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -17,9 +21,12 @@ import java.util.stream.Collectors;
 @Service
 public class CalendarService {
     private final CalendarRepository calendarRepository;
+    private final UserService userService;
 
-    public CalendarService(CalendarRepository calendarRepository){
+    @Autowired
+    public CalendarService(CalendarRepository calendarRepository, UserService userService){
         this.calendarRepository = calendarRepository;
+        this.userService = userService;
     }
 
     public void addHomeTrainingCalendar(AddCalendarRequest request, User user, RecommendedExercise recommendedExercise) {
@@ -88,6 +95,15 @@ public class CalendarService {
                 }
                 )
                 .collect(Collectors.toList());
+
+    }
+
+    public void updateCalendar(UpdateCalendarRequest request) {
+        int changed = calendarRepository.updateDurationById(request.getId(), request.getDuration());
+        if(changed!=1){
+            throw new EntityNotFoundException();
+        }
+
 
     }
 }

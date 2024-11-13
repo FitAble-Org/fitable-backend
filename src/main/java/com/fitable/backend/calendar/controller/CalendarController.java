@@ -2,6 +2,7 @@ package com.fitable.backend.calendar.controller;
 
 import com.fitable.backend.calendar.dto.AddCalendarRequest;
 import com.fitable.backend.calendar.dto.CalendarResponse;
+import com.fitable.backend.calendar.dto.UpdateCalendarRequest;
 import com.fitable.backend.calendar.entity.Calendar;
 import com.fitable.backend.calendar.service.CalendarService;
 import com.fitable.backend.facilitytraining.entity.Facility;
@@ -40,6 +41,12 @@ public class CalendarController {
         this.userService = userService;
     }
 
+    @PostMapping("/time")
+    public ResponseEntity<String> updateCalendar(@RequestBody UpdateCalendarRequest request){
+        calendarService.updateCalendar(request);
+        return ResponseEntity.status(HttpStatus.OK).build();
+
+    }
 
     @PostMapping
     public ResponseEntity<String> addCalendar(@AuthenticationPrincipal UserDetails userDetails, @RequestBody AddCalendarRequest request) {
