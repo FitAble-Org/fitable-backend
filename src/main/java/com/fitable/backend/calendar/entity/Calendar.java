@@ -18,7 +18,7 @@ import java.time.LocalDate;
 public class Calendar {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long CalendarId;
+    private Long calendarId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recommended_exercise_id", referencedColumnName = "id", nullable = true)
