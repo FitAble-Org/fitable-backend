@@ -7,7 +7,7 @@ pipeline {
         GITHUB_REPO_URL = 'https://github.com/FitAble-Org/fitable-backend.git'
         DOCKER_IMAGE_NAME = 'fitable'
         DOCKER_CONTAINER_NAME = 'fitable-container'
-        DOCKER_PORT = '8080'
+        DOCKER_PORT = '8081'  // 8081 포트로 설정
 
         // Database credentials
         DB_URL = credentials('DB_URL') // Jenkins에 저장된 DB URL
@@ -66,7 +66,7 @@ pipeline {
                 script {
                     // 도커 컨테이너명 정의
                     def dockerContainerName = env.DOCKER_CONTAINER_NAME ?: 'fitable-container'
-                    def dockerPort = env.DOCKER_PORT ?: '8080'
+                    def dockerPort = env.DOCKER_PORT ?: '8081'  // 8081 포트로 설정
 
                     // JWT와 OpenAI 키를 사용하기 위해 withCredentials 블록 추가
                     withCredentials([
