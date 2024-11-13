@@ -41,4 +41,12 @@ public class RedisConfig {
 
         return template;
     }
+
+    // 세션 데이터 저장 시 기본 직렬화기 설정
+    @Bean
+    public RedisIndexedSessionRepository sessionRepository(RedisTemplate<String, Object> redisTemplate) {
+        RedisIndexedSessionRepository sessionRepository = new RedisIndexedSessionRepository(redisTemplate);
+        sessionRepository.setDefaultSerializer(new GenericJackson2JsonRedisSerializer()); // 세션 저장소 직렬화기 설정
+        return sessionRepository;
+    }
 }
