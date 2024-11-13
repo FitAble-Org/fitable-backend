@@ -56,9 +56,6 @@ public class FacilityService {
         // 세션에 전체 시설 정보 저장
         session.setAttribute("facilityResponses", facilityResponses);
 
-        // 로깅 추가: 저장된 facilityResponses 로깅
-        log.info("Saved facilityResponses in session: " + facilityResponses);
-
         // itemNm 필드만 추출하여 중복을 제거한 후 리스트로 변환
         List<String> itemNames = facilityResponses.stream()
                 .map(FacilityResponse::getItemNm)
@@ -82,15 +79,9 @@ public class FacilityService {
             return List.of();
         }
 
-        // 로깅 추가: 세션에서 가져온 facilityResponses 로깅
-        log.info("Retrieved facilityResponses from session: " + facilityResponses);
-
         List<FacilityResponse> filteredResponses = facilityResponses.stream()
                 .filter(response -> response.getItemNm().equals(itemName))
                 .collect(Collectors.toList());
-
-        // 로깅 추가: 필터링된 결과 로깅
-        log.info("Filtered facilityResponses by itemName (" + itemName + "): " + filteredResponses);
 
         return filteredResponses;
     }

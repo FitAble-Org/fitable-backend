@@ -30,8 +30,6 @@ public class FacilityController {
         // 세션에서 facilityResponses 가져오기
         List<FacilityResponse> facilityResponses = (List<FacilityResponse>) session.getAttribute("facilityResponses");
 
-        log.info("Retrieved facilityResponses from session: " + facilityResponses);
-
         if (facilityResponses == null) {
             throw new IllegalStateException("근처 시설 데이터가 존재하지 않습니다. 먼저 /nearby 엔드포인트를 호출하십시오.");
         }
