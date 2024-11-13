@@ -68,20 +68,27 @@ pipeline {
                     def dockerContainerName = env.DOCKER_CONTAINER_NAME ?: 'fitable-container'
                     def dockerPort = env.DOCKER_PORT ?: '8080'
 
-                    // 기존 컨테이너를 중지하고 삭제한 후 새 컨테이너 실행
-                    sh """
-                    docker stop ${dockerContainerName} || true
-                    docker rm ${dockerContainerName} || true
-                    docker run -d -p 80:${dockerPort} \
-                      -e DB_URL=${DB_URL} \
-                      -e DB_USERNAME=${DB_USERNAME} \
-                      -e DB_PASSWORD=${DB_PASSWORD} \
-                      -e JWT_SECRET_KEY=$JWT_SECRET_KEY \
-                      -e OPENAI_API_KEY=$OPENAI_API_KEY \
-                      --name ${dockerContainerName} ${env.DOCKER_IMAGE_NAME}:latest
-                    """
+                    // JWT와 OpenAI 키를 사용하기 위해 withCredentials 블록 추가
+                    withCredentials([
+                        string(credentialsId: 'JWT_SECRET_KEY', variable: 'JWT_SECRET_KEY'),
+                        string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY')
+                    ]) {
+                        // 기존 컨테이너를 중지하고 삭제한 후 새 컨테이너 실행
+                        sh """
+                        docker stop ${dockerContainerName} || true
+                        docker rm ${dockerContainerName} || true
+                        docker run -d -p 80:${dockerPort} \
+                          -e DB_URL=${DB_URL} \
+                          -e DB_USERNAME=${DB_USERNAME} \
+                          -e DB_PASSWORD=${DB_PASSWORD} \
+                          -e JWT_SECRET_KEY=$JWT_SECRET_KEY \
+                          -e OPENAI_API_KEY=$OPENAI_API_KEY \
+                          --name ${dockerContainerName} ${env.DOCKER_IMAGE_NAME}:latest
+                        """
+                    }
                 }
             }
         }
+
     }
 }
