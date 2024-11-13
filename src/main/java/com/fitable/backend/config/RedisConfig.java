@@ -36,14 +36,9 @@ public class RedisConfig {
         template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
         template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
 
-        return template;
-    }
+        // 기본 직렬화기 설정
+        template.setDefaultSerializer(new GenericJackson2JsonRedisSerializer());
 
-    // Redis 세션 직렬화 설정
-    @Bean
-    public RedisIndexedSessionRepository sessionRepository(RedisTemplate<String, Object> redisTemplate) {
-        RedisIndexedSessionRepository sessionRepository = new RedisIndexedSessionRepository(redisTemplate);
-        sessionRepository.setDefaultSerializer(new GenericJackson2JsonRedisSerializer());
-        return sessionRepository;
+        return template;
     }
 }
