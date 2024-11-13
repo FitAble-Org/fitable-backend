@@ -77,7 +77,7 @@ pipeline {
                         sh """
                         docker stop ${dockerContainerName} || true
                         docker rm ${dockerContainerName} || true
-                        docker run -d -p 80:${dockerPort} \
+                        docker run -d -p 8081:${dockerPort} \
                           -e DB_URL=${DB_URL} \
                           -e DB_USERNAME=${DB_USERNAME} \
                           -e DB_PASSWORD=${DB_PASSWORD} \
