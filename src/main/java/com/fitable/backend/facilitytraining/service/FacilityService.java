@@ -6,12 +6,14 @@ import com.fitable.backend.facilitytraining.dto.LocationRequest;
 import com.fitable.backend.facilitytraining.entity.Facility;
 import com.fitable.backend.facilitytraining.repository.FacilityRepository;
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,6 +25,15 @@ public class FacilityService {
 
     @Autowired
     private OpenAiService openAiService;
+
+    @Transactional
+    public void saveAllFacilities(List<Facility> facilities) {
+        facilityRepository.saveAll(facilities);
+    }
+
+    public Optional<Facility> getFacilityById(long id){
+        return facilityRepository.findById(id);
+    }
 
     public Mono<FacilityItemNamesWithGptResponse> findFacilitiesWithinRadius(LocationRequest locationRequest, HttpSession session) {
         double x = locationRequest.getX();

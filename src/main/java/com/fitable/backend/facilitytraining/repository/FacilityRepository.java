@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface FacilityRepository extends JpaRepository<Facility, Long> {
 
-    @Query(value = "SELECT * FROM sports_facility f " +
+    @Query(value = "SELECT * FROM facility f " +
             "WHERE (6371 * acos(cos(radians(:y)) * cos(radians(f.fcltyycrdnt_value)) " +
             "* cos(radians(f.fcltyxcrdnt_value) - radians(:x)) + sin(radians(:y)) " +
             "* sin(radians(f.fcltyycrdnt_value)))) < :radiusKm", nativeQuery = true)
