@@ -10,7 +10,7 @@ pipeline {
         DOCKER_PORT = '8080'
 
         // Database credentials
-        DB_URL = 'jdbc:mysql://localhost:3306/fitable'
+        DB_URL = credentials('DB_URL') // Jenkins에 저장된 DB URL
         DB_USERNAME = credentials('DB_USERNAME')  // Jenkins에 저장된 DB 사용자 이름 자격증명 ID
         DB_PASSWORD = credentials('DB_PASSWORD')  // Jenkins에 저장된 DB 비밀번호 자격증명 ID
     }
