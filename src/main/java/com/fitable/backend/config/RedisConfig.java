@@ -6,6 +6,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.DefaultCookieSerializer;
@@ -36,5 +37,13 @@ public class RedisConfig {
         template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
 
         return template;
+    }
+
+    // Redis 세션 직렬화 설정
+    @Bean
+    public RedisIndexedSessionRepository sessionRepository(RedisTemplate<String, Object> redisTemplate) {
+        RedisIndexedSessionRepository sessionRepository = new RedisIndexedSessionRepository(redisTemplate);
+        sessionRepository.setDefaultSerializer(new GenericJackson2JsonRedisSerializer());
+        return sessionRepository;
     }
 }
