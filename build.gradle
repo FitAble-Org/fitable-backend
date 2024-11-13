@@ -45,6 +45,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	// test properties 설정을 위한 H2 의존성
 	testImplementation 'com.h2database:h2'
+	// Redis 의존성
+	implementation 'org.springframework.session:spring-session-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 tasks.named('test') {
