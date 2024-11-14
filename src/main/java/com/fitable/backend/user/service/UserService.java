@@ -1,5 +1,6 @@
 package com.fitable.backend.user.service;
 
+import com.fitable.backend.user.dto.ProfileResponse;
 import com.fitable.backend.user.dto.ProfileUpdateRequest;
 import com.fitable.backend.user.dto.RegisterRequest;
 import com.fitable.backend.user.entity.User;
@@ -102,5 +103,23 @@ public class UserService {
         );
 
         if(changed!=1)throw new RuntimeException("User not found.");
+    }
+
+    public ProfileResponse getUserProfile(UserDetails userDetails) {
+        if(userDetails==null) throw new RuntimeException("User is not authenticated");
+
+        Optional<User> userOpt = userRepository.findByLoginId(userDetails.getUsername());
+        if(userOpt.isEmpty()) throw new RuntimeException("User not found.");
+        User user = userOpt.get();
+
+        ProfileResponse profileResponse = new ProfileResponse();
+        profileResponse.setLoginId(user.getLoginId());
+        profileResponse.setAgeGroup(user.getAgeGroup().getDescription());
+        profileResponse.setGender(user.getGender().getDescription());
+        profileResponse.setDisabilityType(user.getDisabilityType().getDescription());
+        profileResponse.setDisabilityLevel(user.getDisabilityLevel().getDescription());
+
+        return profileResponse;
+
     }
 }
