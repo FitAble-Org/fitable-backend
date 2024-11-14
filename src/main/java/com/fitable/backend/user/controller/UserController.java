@@ -1,8 +1,6 @@
 package com.fitable.backend.user.controller;
 
-import com.fitable.backend.user.dto.LoginRequest;
-import com.fitable.backend.user.dto.RefreshTokenRequest;
-import com.fitable.backend.user.dto.RegisterRequest;
+import com.fitable.backend.user.dto.*;
 import com.fitable.backend.user.entity.User;
 import com.fitable.backend.user.service.CustomUserDetailsService;
 import com.fitable.backend.user.service.UserService;
@@ -11,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +37,29 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/profile")
+    public ResponseEntity<String> updateProfile(@AuthenticationPrincipal UserDetails userDetails, @RequestBody ProfileUpdateRequest profileUpdateRequest){
+        try{
+            userService.updateUser(userDetails, profileUpdateRequest);
+            return  ResponseEntity.status(HttpStatus.OK).body("User profile updated");
+        } catch (IllegalArgumentException e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+
+        }
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<ProfileResponse> getProfile(@AuthenticationPrincipal UserDetails userDetails){
+        try{
+            return ResponseEntity.ok().body(userService.getUserProfile(userDetails));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
         }
     }
 

@@ -1,11 +1,12 @@
 package com.fitable.backend.user.service;
 
+import com.fitable.backend.user.dto.ProfileResponse;
+import com.fitable.backend.user.dto.ProfileUpdateRequest;
 import com.fitable.backend.user.dto.RegisterRequest;
 import com.fitable.backend.user.entity.User;
 import com.fitable.backend.user.exception.UserNotFoundException;
 import com.fitable.backend.user.repository.UserRepository;
 import com.fitable.backend.user.util.JwtTokenUtil;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -88,5 +89,37 @@ public class UserService {
 
     public User getUserById(Long userId) {
         return userRepository.findById(userId).orElse(null);
+    }
+
+    public void updateUser(UserDetails userDetails, ProfileUpdateRequest request) {
+        if(userDetails==null) throw new RuntimeException("User is not authenticated");
+
+        int changed = userRepository.updateUserInfoByLoginId(
+                userDetails.getUsername(),
+                request.getAgeGroup(),
+                request.getGender(),
+                request.getDisabilityType(),
+                request.getDisabilityLevel()
+        );
+
+        if(changed!=1)throw new RuntimeException("User not found.");
+    }
+
+    public ProfileResponse getUserProfile(UserDetails userDetails) {
+        if(userDetails==null) throw new RuntimeException("User is not authenticated");
+
+        Optional<User> userOpt = userRepository.findByLoginId(userDetails.getUsername());
+        if(userOpt.isEmpty()) throw new RuntimeException("User not found.");
+        User user = userOpt.get();
+
+        ProfileResponse profileResponse = new ProfileResponse();
+        profileResponse.setLoginId(user.getLoginId());
+        profileResponse.setAgeGroup(user.getAgeGroup().getDescription());
+        profileResponse.setGender(user.getGender().getDescription());
+        profileResponse.setDisabilityType(user.getDisabilityType().getDescription());
+        profileResponse.setDisabilityLevel(user.getDisabilityLevel().getDescription());
+
+        return profileResponse;
+
     }
 }
