@@ -81,6 +81,10 @@ public class FacilityService {
 
         List<FacilityResponse> filteredResponses = facilityResponses.stream()
                 .filter(response -> response.getItemNm().equals(itemName))
+                .map(response -> {
+                    response.setFcltyCourseSdivNm(response.getItemNm() + " 강좌");
+                    return response;
+                })
                 .collect(Collectors.toList());
 
         return filteredResponses;
