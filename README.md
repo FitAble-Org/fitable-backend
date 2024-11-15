@@ -82,7 +82,4 @@ AI 기반의 솔루션과 공공 데이터를 활용하여 운동 루틴을 최�
 | **장애인 교통시설 정보 API**     | 반경 내 장애인 교통시설 정보 제공                                                       | [API 링크](https://www.bigdata-culture.kr/bigdata/user/data_market/detail.do?id=914ac658-d64b-4fc9-add5-9773393bbe51) |
 | **KakaoMap API**                 | 시설 위치와 길찾기, 지도 정보 제공                                                      | [API 링크](https://developers.kakao.com/docs/latest/ko/local/dev-guide)                   |
 
----
-
-## 🗂️ **프로젝트 구조**
 
