@@ -12,8 +12,8 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?Variable JWT_SECRET_KEY is missing}
       - OPENAI_API_KEY=${OPENAI_API_KEY:?Variable OPENAI_API_KEY is missing}
-      - SPRING_REDIS_HOST=${SPRING_REDIS_HOST:-redis}
-      - SPRING_REDIS_PORT=${SPRING_REDIS_PORT:-6379}
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
     network_mode: bridge
     depends_on:
       - redis  # Redis 서비스와의 의존성 명시
