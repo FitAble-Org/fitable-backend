@@ -12,11 +12,12 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?Variable JWT_SECRET_KEY is missing}
       - OPENAI_API_KEY=${OPENAI_API_KEY:?Variable OPENAI_API_KEY is missing}
-      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_HOST=redis  # Redis 컨테이너 이름을 호스트로 사용
       - SPRING_REDIS_PORT=6379
-    network_mode: bridge
     depends_on:
-      - redis  # Redis 서비스와의 의존성 명시
+      - redis
+    networks:
+      - fitable-network
 
   redis:
     image: redis:latest
@@ -24,7 +25,8 @@ services:
     hostname: redis
     ports:
       - "6379:6379"
-    network_mode: bridge
+    networks:
+      - fitable-network
 
   nginx:
     image: nginx:latest
@@ -38,4 +40,9 @@ services:
       - /etc/nginx/keys:/etc/ssl/private:ro
     depends_on:
       - fitable-app
-    network_mode: bridge
+    networks:
+      - fitable-network
+
+networks:
+  fitable-network:
+    driver: bridge

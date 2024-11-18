@@ -65,27 +65,34 @@ pipeline {
             steps {
                 script {
                     withCredentials([
-                      string(credentialsId: 'JWT_SECRET_KEY', variable: 'JWT_SECRET_KEY'),
-                      string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY'),
+                        string(credentialsId: 'JWT_SECRET_KEY', variable: 'JWT_SECRET_KEY'),
+                        string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY')
                     ]) {
-                      // 기존 컨테이너 중지 및 삭제
-                      sh """
-                      docker stop fitable-container || true
-                      docker rm fitable-container || true
-                      docker stop redis-container || true
-                      docker rm redis-container || true
-                      """
+                        // 기존 컨테이너 중지 및 삭제
+                        sh """
+                        docker stop fitable-container || true
+                        docker rm fitable-container || true
+                        docker stop redis-container || true
+                        docker rm redis-container || true
+                        """
 
-                      // Docker Compose 실행
-                      sh """
-                      JWT_SECRET_KEY=$JWT_SECRET_KEY \
-                      OPENAI_API_KEY=$OPENAI_API_KEY \
-                      docker-compose down || true
+                        // 기존 네트워크 정리
+                        sh "docker network prune -f || true"
 
-                      JWT_SECRET_KEY=$JWT_SECRET_KEY \
-                      OPENAI_API_KEY=$OPENAI_API_KEY \
-                      docker-compose up -d
-                      """
+                        // Docker Compose 실행
+                        sh """
+                        JWT_SECRET_KEY=$JWT_SECRET_KEY \
+                        OPENAI_API_KEY=$OPENAI_API_KEY \
+                        SPRING_REDIS_HOST=redis \
+                        SPRING_REDIS_PORT=6379 \
+                        docker-compose down || true
+
+                        JWT_SECRET_KEY=$JWT_SECRET_KEY \
+                        OPENAI_API_KEY=$OPENAI_API_KEY \
+                        SPRING_REDIS_HOST=redis \
+                        SPRING_REDIS_PORT=6379 \
+                        docker-compose up -d
+                        """
                     }
                 }
             }
