@@ -2,18 +2,18 @@ version: '3.8'
 
 services:
   nginx:
-    image: nginx:latest  # Nginx Docker 이미지
+    image: nginx:latest
     container_name: nginx-container
     ports:
-      - "80:80"    # HTTP 포트
-      - "443:443"  # HTTPS 포트
+      - "80:80"
+      - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf  # Nginx 설정 파일
-      - ./nginx/certs:/etc/ssl/certs             # SSL 인증서
-      - ./nginx/keys:/etc/ssl/private            # SSL 키
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/certs:/etc/ssl/certs
+      - ./nginx/keys:/etc/ssl/private
     networks:
-      - app-network  # Nginx와 fitable-container가 연결될 네트워크
+      - app-network
 
 networks:
   app-network:
-    driver: bridge
+    external: true  # 기존 네트워크를 사용
