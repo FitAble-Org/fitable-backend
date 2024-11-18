@@ -1,16 +1,6 @@
 version: '3.8'
 
 services:
-  fitable-app:
-    image: fitable:latest  # Spring Boot 애플리케이션 Docker 이미지 이름
-    container_name: fitable-container  # 컨테이너 이름
-    ports:
-      - "8081:8081"  # Spring Boot 애플리케이션 포트 매핑
-    environment:
-      SPRING_PROFILES_ACTIVE: prod  # 필요한 환경 변수 설정
-    networks:
-      - fitable-network  # 네트워크 이름
-
   nginx:
     image: nginx:latest  # Nginx Docker 이미지
     container_name: nginx-container  # Nginx 컨테이너 이름
