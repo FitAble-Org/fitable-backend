@@ -79,4 +79,9 @@ public class JwtTokenUtil {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
+
+    // refreshToken 만료시간 반환
+    public long getRefreshTokenExpireTime() {
+        return jwtConfig.getRefreshTokenExpireTime();
+    }
 }
