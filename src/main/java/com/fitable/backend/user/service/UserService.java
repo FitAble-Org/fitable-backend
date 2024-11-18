@@ -9,6 +9,7 @@ import com.fitable.backend.user.repository.UserRepository;
 import com.fitable.backend.user.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +28,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtil jwtTokenUtil;
     private final CustomUserDetailsService customUserDetailsService;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     // 회원 가입 메서드
     public void registerUser(RegisterRequest registerRequest) {
@@ -59,7 +62,16 @@ public class UserService {
         // JWT 토큰 생성
         String accessToken = jwtTokenUtil.generateToken(userDetails);
         String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
-        log.info("JWT Token generated for user: {}", loginId);
+
+        // Redis에 리프레시 토큰 저장
+        redisTemplate.opsForValue().set(
+                "refreshToken:" + loginId, // Redis 키
+                refreshToken,             // Redis 값
+                jwtTokenUtil.getRefreshTokenExpireTime(), // 만료 시간
+                TimeUnit.MILLISECONDS     // 시간 단위
+        );
+
+        log.info("JWT Token generated and stored in Redis for user: {}", loginId);
 
         // AccessToken과 RefreshToken을 Map으로 반환
         Map<String, String> tokens = new HashMap<>();
@@ -121,5 +133,34 @@ public class UserService {
 
         return profileResponse;
 
+    }
+
+    // refreshToken 갱신
+    public String refreshToken(String refreshToken) {
+        try {
+            // 토큰에서 사용자 이름 추출
+            String username = jwtTokenUtil.extractUsername(refreshToken);
+
+            // Redis에서 저장된 리프레시 토큰 가져오기
+            String storedRefreshToken = (String) redisTemplate.opsForValue().get("refreshToken:" + username);
+
+            // Redis에 저장된 토큰과 요청 토큰 비교
+            if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
+                throw new RuntimeException("Invalid or expired refresh token");
+            }
+
+            // 새 Access Token 생성
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+            String newAccessToken = jwtTokenUtil.generateToken(userDetails);
+
+            return newAccessToken;
+        } catch (Exception e) {
+            throw new RuntimeException("Error refreshing token");
+        }
+    }
+
+    // 로그아웃
+    public void logout(String loginId) {
+        redisTemplate.delete("refreshToken:" + loginId); // refreshToken 삭제
     }
 }
