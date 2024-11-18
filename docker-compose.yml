@@ -14,6 +14,7 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY:?Variable OPENAI_API_KEY is missing}
       - SPRING_REDIS_HOST=${SPRING_REDIS_HOST:-localhost}
       - SPRING_REDIS_PORT=${SPRING_REDIS_PORT:-6379}
+    network_mode: bridge
 
   nginx:
     image: nginx:latest
@@ -27,3 +28,4 @@ services:
       - /etc/nginx/keys:/etc/ssl/private:ro
     depends_on:
       - fitable-app
+    network_mode: bridge
