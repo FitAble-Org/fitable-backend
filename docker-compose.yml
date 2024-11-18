@@ -27,5 +27,3 @@ services:
       - /etc/nginx/keys:/etc/ssl/private:ro
     depends_on:
       - fitable-app
-    networks:
-      - bridge
