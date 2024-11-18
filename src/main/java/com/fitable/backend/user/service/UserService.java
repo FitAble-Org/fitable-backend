@@ -9,6 +9,7 @@ import com.fitable.backend.user.repository.UserRepository;
 import com.fitable.backend.user.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +28,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtil jwtTokenUtil;
     private final CustomUserDetailsService customUserDetailsService;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     // 회원 가입 메서드
     public void registerUser(RegisterRequest registerRequest) {
@@ -59,7 +62,16 @@ public class UserService {
         // JWT 토큰 생성
         String accessToken = jwtTokenUtil.generateToken(userDetails);
         String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
-        log.info("JWT Token generated for user: {}", loginId);
+
+        // Redis에 리프레시 토큰 저장
+        redisTemplate.opsForValue().set(
+                "refreshToken:" + loginId, // Redis 키
+                refreshToken,             // Redis 값
+                jwtTokenUtil.getRefreshTokenExpireTime(), // 만료 시간
+                TimeUnit.MILLISECONDS     // 시간 단위
+        );
+
+        log.info("JWT Token generated and stored in Redis for user: {}", loginId);
 
         // AccessToken과 RefreshToken을 Map으로 반환
         Map<String, String> tokens = new HashMap<>();
