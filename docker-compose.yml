@@ -12,8 +12,6 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?Variable JWT_SECRET_KEY is missing}
       - OPENAI_API_KEY=${OPENAI_API_KEY:?Variable OPENAI_API_KEY is missing}
-    networks:
-      - app-network
 
   nginx:
     image: nginx:latest
