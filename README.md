@@ -66,7 +66,7 @@ AI 기반의 솔루션과 공공 데이터를 활용하여 운동 루틴을 최�
 | **분류**             | **기술 및 도구**                                                                                     |
 |-----------------------|-----------------------------------------------------------------------------------------------------|
 | **Languages**         | `Java`, `JavaScript`                                                                               |
-| **Backend Frameworks**| `Spring Boot`, `Spring MVC`, `Spring Data JPA`, `Spring Security`, `MyBatis`, `JDBC`               |
+| **Backend Frameworks**| `Spring Boot`, `Spring MVC`, `Spring Data JPA`, `Spring Security`             |
 | **Frontend Frameworks**| `Vue.js`                                                                                          |
 | **Database**          | `MySQL`, `Redis`, `AWS RDS`                                                                        |
 | **DevOps & Cloud**    | `Jenkins`, `Docker`, `AWS EC2`, `AWS RDS`                                                          |
