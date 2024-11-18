@@ -158,4 +158,9 @@ public class UserService {
             throw new RuntimeException("Error refreshing token");
         }
     }
+
+    // 로그아웃
+    public void logout(String loginId) {
+        redisTemplate.delete("refreshToken:" + loginId); // refreshToken 삭제
+    }
 }
