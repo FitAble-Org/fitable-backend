@@ -61,27 +61,34 @@ pipeline {
             }
         }
 
-       stage('Deploy with Docker Compose') {
-           steps {
-               script {
-                   withCredentials([
-                       string(credentialsId: 'JWT_SECRET_KEY', variable: 'JWT_SECRET_KEY'),
-                       string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY')
-                   ]) {
-                       // 기존 컨테이너 중지 및 삭제
-                       sh """
-                       docker stop fitable-container || true
-                       docker rm fitable-container || true
-                       """
+        stage('Deploy with Docker Compose') {
+            steps {
+                script {
+                    withCredentials([
+                      string(credentialsId: 'JWT_SECRET_KEY', variable: 'JWT_SECRET_KEY'),
+                      string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY'),
+                    ]) {
+                      // 기존 컨테이너 중지 및 삭제
+                      sh """
+                      docker stop fitable-container || true
+                      docker rm fitable-container || true
+                      docker stop redis-container || true
+                      docker rm redis-container || true
+                      """
 
-                       // Docker Compose 실행
-                       sh """
-                       JWT_SECRET_KEY=$JWT_SECRET_KEY OPENAI_API_KEY=$OPENAI_API_KEY docker-compose down || true
-                       JWT_SECRET_KEY=$JWT_SECRET_KEY OPENAI_API_KEY=$OPENAI_API_KEY docker-compose up -d
-                       """
-                   }
-               }
-           }
-       }
+                      // Docker Compose 실행
+                      sh """
+                      JWT_SECRET_KEY=$JWT_SECRET_KEY \
+                      OPENAI_API_KEY=$OPENAI_API_KEY \
+                      docker-compose down || true
+
+                      JWT_SECRET_KEY=$JWT_SECRET_KEY \
+                      OPENAI_API_KEY=$OPENAI_API_KEY \
+                      docker-compose up -d
+                      """
+                    }
+                }
+            }
+        }
     }
 }
