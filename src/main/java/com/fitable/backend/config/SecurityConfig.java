@@ -53,11 +53,14 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);  // 자격 증명 허용
-        config.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173", "https://fitable-frontend.vercel.app"));
-        config.setAllowedMethods(Collections.singletonList("*"));  // 모든 HTTP 메서드 허용
-        config.setAllowedHeaders(Collections.singletonList("*"));  // 모든 헤더 허용
+        config.setAllowedOrigins(Arrays.asList(
+                "https://fitable.kro.kr",      // 프론트엔드 도메인
+                "https://api.fitable.kro.kr"  // API 도메인
+        ));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
+        config.setExposedHeaders(Arrays.asList("Authorization"));  // 노출 헤더 추가
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        config.setExposedHeaders(Arrays.asList("Authorization"));
         source.registerCorsConfiguration("/**", config);  // 모든 경로에 대해 CORS 설정 적용
         return source;
     }
