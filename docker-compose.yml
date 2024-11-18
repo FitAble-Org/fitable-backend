@@ -28,8 +28,4 @@ services:
     depends_on:
       - fitable-app
     networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
+      - bridge
