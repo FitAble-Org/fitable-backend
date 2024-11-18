@@ -64,36 +64,13 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 script {
-                    // 도커 컨테이너명 정의
-                    def dockerContainerName = env.DOCKER_CONTAINER_NAME ?: 'fitable-container'
-                    def dockerPort = env.DOCKER_PORT ?: '8081'  // 8081 포트로 설정
-
-                    // JWT와 OpenAI 키를 사용하기 위해 withCredentials 블록 추가
-                    withCredentials([
-                        string(credentialsId: 'JWT_SECRET_KEY', variable: 'JWT_SECRET_KEY'),
-                        string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY')
-                    ]) {
-                        // 기존 컨테이너를 중지하고 삭제한 후 새 컨테이너 실행
-                        sh """
-                        docker stop ${dockerContainerName} || true
-                        docker rm ${dockerContainerName} || true
-                        docker run -d -p 8081:${dockerPort} \
-                          -e DB_URL=${DB_URL} \
-                          -e DB_USERNAME=${DB_USERNAME} \
-                          -e DB_PASSWORD=${DB_PASSWORD} \
-                          -e JWT_SECRET_KEY=$JWT_SECRET_KEY \
-                          -e OPENAI_API_KEY=$OPENAI_API_KEY \
-                          --name ${dockerContainerName} ${env.DOCKER_IMAGE_NAME}:latest
-                        """
-                        // Docker Compose로 배포
-                        sh """
-                        docker-compose down || true
-                        docker-compose up -d
-                        """
-                    }
+                    // Docker Compose를 사용하여 배포
+                    sh """
+                    docker-compose down || true  # 기존 서비스 종료
+                    docker-compose up -d         # 새로 서비스 시작
+                    """
                 }
             }
         }
-
     }
 }
