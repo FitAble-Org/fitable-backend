@@ -134,4 +134,28 @@ public class UserService {
         return profileResponse;
 
     }
+
+    // refreshToken 갱신
+    public String refreshToken(String refreshToken) {
+        try {
+            // 토큰에서 사용자 이름 추출
+            String username = jwtTokenUtil.extractUsername(refreshToken);
+
+            // Redis에서 저장된 리프레시 토큰 가져오기
+            String storedRefreshToken = (String) redisTemplate.opsForValue().get("refreshToken:" + username);
+
+            // Redis에 저장된 토큰과 요청 토큰 비교
+            if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
+                throw new RuntimeException("Invalid or expired refresh token");
+            }
+
+            // 새 Access Token 생성
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+            String newAccessToken = jwtTokenUtil.generateToken(userDetails);
+
+            return newAccessToken;
+        } catch (Exception e) {
+            throw new RuntimeException("Error refreshing token");
+        }
+    }
 }
