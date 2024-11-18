@@ -61,7 +61,7 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy with Docker Compose') {
             steps {
                 script {
                     // 도커 컨테이너명 정의
@@ -84,6 +84,11 @@ pipeline {
                           -e JWT_SECRET_KEY=$JWT_SECRET_KEY \
                           -e OPENAI_API_KEY=$OPENAI_API_KEY \
                           --name ${dockerContainerName} ${env.DOCKER_IMAGE_NAME}:latest
+                        """
+                        // Docker Compose로 배포
+                        sh """
+                        docker-compose down || true
+                        docker-compose up -d
                         """
                     }
                 }
