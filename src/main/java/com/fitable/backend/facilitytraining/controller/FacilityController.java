@@ -24,7 +24,6 @@ public class FacilityController {
     public Mono<FacilityItemNamesWithGptResponse> getNearbyFacilities(@RequestBody LocationRequest locationRequest, HttpSession session) {
         Mono<FacilityItemNamesWithGptResponse> response = facilityService.findFacilitiesWithinRadius(locationRequest, session);
         log.info("Session ID after /nearby: {}", session.getId());
-        log.info("FacilityResponses stored: {}", session.getAttribute("facilityResponses"));
         return response;
     }
 
@@ -33,7 +32,6 @@ public class FacilityController {
         // 세션에서 facilityResponses 가져오기
         log.info("Session ID for /filter: {}", session.getId());
         List<FacilityResponse> facilityResponses = (List<FacilityResponse>) session.getAttribute("facilityResponses");
-        log.info("FacilityResponses retrieved: {}", facilityResponses);
 
         if (facilityResponses == null) {
             throw new IllegalStateException("근처 시설 데이터가 존재하지 않습니다. 먼저 /nearby 엔드포인트를 호출하십시오.");
