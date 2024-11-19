@@ -13,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -40,6 +41,45 @@ public class UserController {
         }
     }
 
+    // 로그인
+    @PostMapping("/login")
+    public ResponseEntity<String> loginUser(@RequestBody LoginRequest loginRequest) {
+        try {
+            Map<String, String> tokens = userService.login(loginRequest.getLoginId(), loginRequest.getPassword());
+
+            // Access Token은 인증 헤더에 세팅
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + tokens.get("accessToken"));
+            // Refresh Token은 쿠키에 세팅
+            ResponseCookie refreshTokenCookie = createCookie("refreshToken", tokens.get("refreshToken"), 7 * 24 * 60 * 60);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .header("Set-Cookie", refreshTokenCookie.toString())
+                    .body("Login successful");
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+    }
+
+    // 액세스 토큰 갱신 (리프레쉬 토큰 이용)
+    // 액세스 토큰 만료 시 401 응답하면 클라이언트가 해당 경로로 리프레쉬 토큰 보내서 갱신
+    @PostMapping("/refresh")
+    public ResponseEntity<Map<String, String>> refreshAccessToken(@RequestBody Map<String, String> tokenRequest) {
+        try {
+            String refreshToken = tokenRequest.get("refreshToken");
+            String newAccessToken = userService.refreshToken(refreshToken);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("accessToken", newAccessToken);
+
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+    }
+
     @PostMapping("/profile")
     public ResponseEntity<String> updateProfile(@AuthenticationPrincipal UserDetails userDetails, @RequestBody ProfileUpdateRequest profileUpdateRequest){
         try{
@@ -60,28 +100,6 @@ public class UserController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 
-        }
-    }
-
-    // 로그인
-    @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody LoginRequest loginRequest) {
-        try {
-            Map<String, String> tokens = userService.login(loginRequest.getLoginId(), loginRequest.getPassword());
-
-            // Access Token은 인증 헤더에 세팅
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + tokens.get("accessToken"));
-            // Refresh Token은 쿠키에 세팅
-            ResponseCookie refreshTokenCookie = createCookie("refreshToken", tokens.get("refreshToken"), 7 * 24 * 60 * 60);
-
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .header("Set-Cookie", refreshTokenCookie.toString())
-                    .body("Login successful");
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
     }
 
