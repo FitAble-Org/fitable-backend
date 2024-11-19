@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -31,10 +32,13 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("**").permitAll() // 모든 사용자에게 모든 경로 접근 허용, 추후 특정 경로로 고쳐주기
-                        .anyRequest().authenticated() // 나머지 요청은 인증 필요
+                        // 로그인 및 회원가입 경로는 인증 없이 접근 가능
+                        .requestMatchers("/login", "/register").permitAll()
+                        // 나머지 요청은 인증 필요
+                        .anyRequest().authenticated()
                 )
-                .csrf(AbstractHttpConfigurer::disable); // CSRF 보호 비활성화
+                .csrf(AbstractHttpConfigurer::disable) // CSRF 보호 비활성화
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
 
         return http.build();
     }
