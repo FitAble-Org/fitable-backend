@@ -34,6 +34,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         // 특정 경로 건너뛰기
         String path = request.getServletPath();
+        System.out.println("Request Path: " + path); // 디버깅용 로그 추가
         if (path.equals("/login") || path.equals("/register")) {
             chain.doFilter(request, response); // 필터 체인 실행, 필터 로직 건너뜀
             return;
