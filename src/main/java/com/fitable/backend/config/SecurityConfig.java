@@ -36,7 +36,7 @@ public class SecurityConfig {
                         // CORS 사전 요청(OPTIONS)은 인증 없이 허용
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // 로그인 및 회원가입 경로는 인증 없이 접근 가능
-                        .requestMatchers("/api/users/login", "/api/users/register").permitAll()
+                        .requestMatchers("/api/users/login", "/api/users/register", "/error").permitAll()
                         // 나머지 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
