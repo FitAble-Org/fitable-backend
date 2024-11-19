@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize
                         // 로그인 및 회원가입 경로는 인증 없이 접근 가능
-                        .requestMatchers("/login", "/register").permitAll()
+                        .requestMatchers("api/users/login", "api/users/register").permitAll()
                         // 나머지 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
