@@ -32,6 +32,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
+        // 특정 경로 건너뛰기
+        String path = request.getServletPath();
+        if (path.equals("/login") || path.equals("/register")) {
+            chain.doFilter(request, response); // 필터 체인 실행, 필터 로직 건너뜀
+            return;
+        }
+
         final String authorizationHeader = request.getHeader("Authorization");
 
         String username = null;
