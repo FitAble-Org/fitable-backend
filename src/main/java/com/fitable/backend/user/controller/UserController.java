@@ -97,7 +97,7 @@ public class UserController {
     }
 
     // 사용자 정보 조회 (테스트 코드, 추후 수정)
-    @GetMapping("/{userId}")
+    @GetMapping("/info/{userId}")
     public ResponseEntity<User> getUserById(@PathVariable Long userId) {
         User user = userService.getUserById(userId);
         if (user != null) {
