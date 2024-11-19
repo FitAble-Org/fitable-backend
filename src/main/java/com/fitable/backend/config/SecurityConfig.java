@@ -3,6 +3,7 @@ package com.fitable.backend.config;
 import com.fitable.backend.filter.JwtRequestFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,8 +33,10 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize
+                        // CORS 사전 요청(OPTIONS)은 인증 없이 허용
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // 로그인 및 회원가입 경로는 인증 없이 접근 가능
-                        .requestMatchers("api/users/login", "api/users/register").permitAll()
+                        .requestMatchers("/api/users/login", "/api/users/register").permitAll()
                         // 나머지 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
