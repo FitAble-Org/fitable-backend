@@ -124,20 +124,4 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
-
-    @PostMapping("/refresh")
-    public ResponseEntity<String> refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
-        try {
-            String username = jwtTokenUtil.extractUsername(refreshTokenRequest.getRefreshToken());
-
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-            if (jwtTokenUtil.validateToken(refreshTokenRequest.getRefreshToken(), userDetails)) {
-                String newAccessToken = jwtTokenUtil.generateToken(userDetails);
-                return ResponseEntity.ok(newAccessToken);  // 새 Access Token 문자열 반환
-            }
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid refresh token");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error refreshing token");
-        }
-    }
 }
