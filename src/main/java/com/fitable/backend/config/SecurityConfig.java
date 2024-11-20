@@ -63,7 +63,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);  // 자격 증명 허용
-        config.setAllowedOrigins(Arrays.asList(
+        config.setAllowedOriginPatterns(Arrays.asList(
                 "https://fitable.kro.kr",      // 프론트엔드 도메인
                 "https://api.fitable.kro.kr"  // API 도메인
         ));
