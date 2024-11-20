@@ -81,6 +81,10 @@ public class FacilityService {
 
         List<FacilityResponse> filteredResponses = facilityResponses.stream()
                 .filter(response -> response.getItemNm().equals(itemName))
+                .peek(response -> {
+                    if(response.getFcltyCourseSdivNm().isEmpty()) response.setFcltyCourseSdivNm("강좌 없음");
+                    else response.setFcltyCourseSdivNm(response.getItemNm() + " 강좌");
+                })
                 .collect(Collectors.toList());
 
         return filteredResponses;

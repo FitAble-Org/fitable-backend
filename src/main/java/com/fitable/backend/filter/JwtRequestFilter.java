@@ -1,67 +1,74 @@
 package com.fitable.backend.filter;
 
+import com.fitable.backend.user.service.CustomUserDetailsService;
 import com.fitable.backend.user.util.JwtTokenUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 @Component
+@Slf4j
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final JwtTokenUtil jwtTokenUtil;
-    private final UserDetailsService userDetailsService; // UserService 대신 UserDetailsService 사용
+    private final CustomUserDetailsService customUserDetailsService;
 
-    public JwtRequestFilter(JwtTokenUtil jwtTokenUtil, UserDetailsService userDetailsService) {
+    public JwtRequestFilter(JwtTokenUtil jwtTokenUtil, CustomUserDetailsService customUserDetailsService) {
         this.jwtTokenUtil = jwtTokenUtil;
-        this.userDetailsService = userDetailsService;
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
+        final String authHeader = request.getHeader("Authorization");
 
-        final String authorizationHeader = request.getHeader("Authorization");
+        // 요청 URI와 헤더 로그
+        log.info("Processing request for URI: {}", request.getRequestURI());
+        log.info("Authorization Header: {}", authHeader);
 
-        String username = null;
-        String jwt = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            final String jwt = authHeader.substring(7);
+            log.debug("Extracted JWT: {}", jwt);
+            try {
+                final String username = jwtTokenUtil.extractUsername(jwt);
+                log.info("Extracted username from JWT: {}", username);
 
-        // JWT 토큰이 Authorization 헤더에 있는지 확인
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            jwt = authorizationHeader.substring(7);  // "Bearer " 접두사 제거
-            username = jwtTokenUtil.extractUsername(jwt);  // JWT에서 사용자 이름 추출
-        }
+                // SecurityContext에 인증 정보가 없는 경우 처리
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    log.debug("Loading user details for username: {}", username);
+                    UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+                    log.debug("User details loaded: {}", userDetails);
 
-        // username이 있고, SecurityContext에서 아직 인증되지 않은 경우 처리
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (username != null && (authentication == null || authentication instanceof AnonymousAuthenticationToken)) {
-            // UserDetailsService를 사용하여 UserDetails 객체 로드
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-            // UserDetails를 사용하여 토큰 검증
-            if (jwtTokenUtil.validateToken(jwt, userDetails)) {
-                // 인증 토큰을 생성하고, SecurityContext에 설정
-                UsernamePasswordAuthenticationToken authenticationToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                // SecurityContext에 인증 정보 설정
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    if (jwtTokenUtil.validateToken(jwt, userDetails)) {
+                        UsernamePasswordAuthenticationToken authToken =
+                                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                        log.info("Authentication successful for user: {}", username);
+                    } else {
+                        log.warn("JWT validation failed for user: {}", username);
+                    }
+                }
+            } catch (Exception e) {
+                log.error("JWT validation failed: {}", e.getMessage());
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT");
+                return;
             }
+        } else {
+            log.warn("Authorization header missing or invalid: {}", authHeader);
         }
 
-        // 다음 필터 체인으로 요청 전달
+        // SecurityContext 확인
+        log.debug("SecurityContext after filter: {}", SecurityContextHolder.getContext().getAuthentication());
         chain.doFilter(request, response);
     }
 }
