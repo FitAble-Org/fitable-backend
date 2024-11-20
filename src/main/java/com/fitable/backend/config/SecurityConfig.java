@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable) // CSRF 보호 비활성화
+                .securityContext(securityContext -> securityContext.requireExplicitSave(false)) //익명 인증 비활성화
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless 모드 설정
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
