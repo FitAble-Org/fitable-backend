@@ -61,34 +61,41 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy with Docker Compose') {
             steps {
                 script {
-                    // 도커 컨테이너명 정의
-                    def dockerContainerName = env.DOCKER_CONTAINER_NAME ?: 'fitable-container'
-                    def dockerPort = env.DOCKER_PORT ?: '8081'  // 8081 포트로 설정
-
-                    // JWT와 OpenAI 키를 사용하기 위해 withCredentials 블록 추가
                     withCredentials([
                         string(credentialsId: 'JWT_SECRET_KEY', variable: 'JWT_SECRET_KEY'),
                         string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY')
                     ]) {
-                        // 기존 컨테이너를 중지하고 삭제한 후 새 컨테이너 실행
+                        // 기존 컨테이너 중지 및 삭제
                         sh """
-                        docker stop ${dockerContainerName} || true
-                        docker rm ${dockerContainerName} || true
-                        docker run -d -p 8081:${dockerPort} \
-                          -e DB_URL=${DB_URL} \
-                          -e DB_USERNAME=${DB_USERNAME} \
-                          -e DB_PASSWORD=${DB_PASSWORD} \
-                          -e JWT_SECRET_KEY=$JWT_SECRET_KEY \
-                          -e OPENAI_API_KEY=$OPENAI_API_KEY \
-                          --name ${dockerContainerName} ${env.DOCKER_IMAGE_NAME}:latest
+                        docker stop fitable-container || true
+                        docker rm fitable-container || true
+                        docker stop redis-container || true
+                        docker rm redis-container || true
+                        """
+
+                        // 기존 네트워크 정리
+                        sh "docker network prune -f || true"
+
+                        // Docker Compose 실행
+                        sh """
+                        JWT_SECRET_KEY=$JWT_SECRET_KEY \
+                        OPENAI_API_KEY=$OPENAI_API_KEY \
+                        SPRING_REDIS_HOST=redis \
+                        SPRING_REDIS_PORT=6379 \
+                        docker-compose down || true
+
+                        JWT_SECRET_KEY=$JWT_SECRET_KEY \
+                        OPENAI_API_KEY=$OPENAI_API_KEY \
+                        SPRING_REDIS_HOST=redis \
+                        SPRING_REDIS_PORT=6379 \
+                        docker-compose up -d
                         """
                     }
                 }
             }
         }
-
     }
 }

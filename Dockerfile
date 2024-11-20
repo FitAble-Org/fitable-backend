@@ -6,3 +6,7 @@ COPY build/libs/backend-0.0.1-SNAPSHOT.jar app.jar
 
 # 애플리케이션 실행
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# Redis 환경변수 명시
+ENV SPRING_REDIS_HOST=172.17.0.2
+ENV SPRING_REDIS_PORT=6379
