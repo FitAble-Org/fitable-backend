@@ -65,7 +65,8 @@ public class SecurityConfig {
         config.setAllowCredentials(true);  // 자격 증명 허용
         config.setAllowedOriginPatterns(Arrays.asList(
                 "https://fitable.kro.kr",      // 프론트엔드 도메인
-                "https://api.fitable.kro.kr"  // API 도메인
+                "https://api.fitable.kro.kr",  // API 도메인
+                "http://43.201.248.185" //테스트용 IP
         ));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
