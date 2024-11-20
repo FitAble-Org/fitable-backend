@@ -56,7 +56,8 @@ public class UserController {
             return ResponseEntity.ok()
                     .headers(headers)
                     .header("Set-Cookie", refreshTokenCookie.toString())
-                    .body("Login successful");
+                    // 디버깅용 액세스 토큰 반환! 추후 없앨 것
+                    .body(tokens.get("accessToken"));
         } catch (RuntimeException e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
