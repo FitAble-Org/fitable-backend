@@ -78,7 +78,7 @@ public class UserController {
             return ResponseEntity.ok()
                     .headers(headers)
                     .header("Set-Cookie", refreshTokenCookie.toString())
-                    .body("Login successful");
+                    .body(tokens.get("accessToken"));
         } catch (RuntimeException e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
