@@ -22,24 +22,36 @@ public class FacilityController {
 
     @PostMapping("/nearby")
     public Mono<FacilityItemNamesWithGptResponse> getNearbyFacilities(@RequestBody LocationRequest locationRequest, HttpSession session) {
+        // 요청 바디 로그
+        log.info("Received /nearby request with payload: {}", locationRequest);
+
+        // 세션 로그
+        log.info("Session ID before processing /nearby: {}", session.getId());
+
         Mono<FacilityItemNamesWithGptResponse> response = facilityService.findFacilitiesWithinRadius(locationRequest, session);
-        log.info("Session ID after /nearby: {}", session.getId());
-        log.info("FacilityResponses stored: {}", session.getAttribute("facilityResponses"));
+
+        // 처리 결과 로그
+        log.info("Session ID after processing /nearby: {}", session.getId());
         return response;
     }
 
     @GetMapping("/filter")
     public List<FacilityResponse> getFacilitiesByItemName(@RequestParam String itemName, HttpSession session) {
-        // 세션에서 facilityResponses 가져오기
+        // 요청 파라미터 로그
+        log.info("Received /filter request with itemName: {}", itemName);
+
+        // 세션 데이터 로그
         log.info("Session ID for /filter: {}", session.getId());
         List<FacilityResponse> facilityResponses = (List<FacilityResponse>) session.getAttribute("facilityResponses");
-        log.info("FacilityResponses retrieved: {}", facilityResponses);
 
         if (facilityResponses == null) {
+            log.error("No facility data found in session for /filter.");
             throw new IllegalStateException("근처 시설 데이터가 존재하지 않습니다. 먼저 /nearby 엔드포인트를 호출하십시오.");
         }
 
-        // 세션의 데이터에서 itemName으로 필터링하여 반환
-        return facilityService.filterFacilitiesByItemName(facilityResponses, itemName);
+        // 필터링된 결과 로그
+        List<FacilityResponse> filteredFacilities = facilityService.filterFacilitiesByItemName(facilityResponses, itemName);
+        log.info("Filtered facilities count: {}", filteredFacilities.size());
+        return filteredFacilities;
     }
 }

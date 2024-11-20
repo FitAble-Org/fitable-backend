@@ -13,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -40,6 +41,46 @@ public class UserController {
         }
     }
 
+    // 로그인
+    @PostMapping("/login")
+    public ResponseEntity<String> loginUser(@RequestBody LoginRequest loginRequest) {
+        try {
+            Map<String, String> tokens = userService.login(loginRequest.getLoginId(), loginRequest.getPassword());
+
+            // Access Token은 인증 헤더에 세팅
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + tokens.get("accessToken"));
+            // Refresh Token은 쿠키에 세팅
+            ResponseCookie refreshTokenCookie = createCookie("refreshToken", tokens.get("refreshToken"), 7 * 24 * 60 * 60);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .header("Set-Cookie", refreshTokenCookie.toString())
+                    // 디버깅용 액세스 토큰 반환! 추후 없앨 것
+                    .body(tokens.get("accessToken"));
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+    }
+
+    // 액세스 토큰 갱신 (리프레쉬 토큰 이용)
+    // 액세스 토큰 만료 시 401 응답하면 클라이언트가 해당 경로로 리프레쉬 토큰 보내서 갱신
+    @PostMapping("/refresh")
+    public ResponseEntity<Map<String, String>> refreshAccessToken(@RequestBody Map<String, String> tokenRequest) {
+        try {
+            String refreshToken = tokenRequest.get("refreshToken");
+            String newAccessToken = userService.refreshToken(refreshToken);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("accessToken", newAccessToken);
+
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+    }
+
     @PostMapping("/profile")
     public ResponseEntity<String> updateProfile(@AuthenticationPrincipal UserDetails userDetails, @RequestBody ProfileUpdateRequest profileUpdateRequest){
         try{
@@ -63,28 +104,6 @@ public class UserController {
         }
     }
 
-    // 로그인
-    @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody LoginRequest loginRequest) {
-        try {
-            Map<String, String> tokens = userService.login(loginRequest.getLoginId(), loginRequest.getPassword());
-
-            // Access Token은 인증 헤더에 세팅
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + tokens.get("accessToken"));
-            // Refresh Token은 쿠키에 세팅
-            ResponseCookie refreshTokenCookie = createCookie("refreshToken", tokens.get("refreshToken"), 7 * 24 * 60 * 60);
-
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .header("Set-Cookie", refreshTokenCookie.toString())
-                    .body("Login successful");
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-    }
-
     // 쿠키 생성 메서드
     private ResponseCookie createCookie(String name, String value, int maxAge) {
         return ResponseCookie.from(name, value)
@@ -97,29 +116,13 @@ public class UserController {
     }
 
     // 사용자 정보 조회 (테스트 코드, 추후 수정)
-    @GetMapping("/{userId}")
+    @GetMapping("/info/{userId}")
     public ResponseEntity<User> getUserById(@PathVariable Long userId) {
         User user = userService.getUserById(userId);
         if (user != null) {
             return ResponseEntity.ok(user);
         } else {
             return ResponseEntity.notFound().build();
-        }
-    }
-
-    @PostMapping("/refresh")
-    public ResponseEntity<String> refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
-        try {
-            String username = jwtTokenUtil.extractUsername(refreshTokenRequest.getRefreshToken());
-
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-            if (jwtTokenUtil.validateToken(refreshTokenRequest.getRefreshToken(), userDetails)) {
-                String newAccessToken = jwtTokenUtil.generateToken(userDetails);
-                return ResponseEntity.ok(newAccessToken);  // 새 Access Token 문자열 반환
-            }
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid refresh token");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error refreshing token");
         }
     }
 }
