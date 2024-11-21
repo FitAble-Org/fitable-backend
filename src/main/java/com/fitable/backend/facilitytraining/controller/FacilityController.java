@@ -67,7 +67,7 @@ public class FacilityController {
      * @param display 출력할 블로그 개수
      * @return 블로그 리뷰 리스트
      */
-    @GetMapping
+    @GetMapping("/reviews/blog")
     public List<NaverBlogReviewResponse> getBlogReviews(
             @RequestParam String query,
             @RequestParam(defaultValue = "5") int display) {
