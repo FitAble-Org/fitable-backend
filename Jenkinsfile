@@ -13,6 +13,10 @@ pipeline {
         DB_URL = credentials('DB_URL') // Jenkins에 저장된 DB URL
         DB_USERNAME = credentials('DB_USERNAME')  // Jenkins에 저장된 DB 사용자 이름 자격증명 ID
         DB_PASSWORD = credentials('DB_PASSWORD')  // Jenkins에 저장된 DB 비밀번호 자격증명 ID
+
+        // Naver API credentials
+        NAVER_CLIENT_ID = credentials('NAVER_CLIENT_ID')
+        NAVER_CLIENT_SECRET = credentials('NAVER_CLIENT_SECRET')
     }
 
     triggers {
@@ -45,6 +49,8 @@ pipeline {
                             ./gradlew clean build -x test \
                             -Djwt.secret-key=$JWT_SECRET_KEY \
                             -Dopenai.api.key=$OPENAI_API_KEY
+                            -Dnaver.client-id=$NAVER_CLIENT_ID \
+                            -Dnaver.client-secret=$NAVER_CLIENT_SECRET
                         """
                     }
                 }
@@ -67,6 +73,8 @@ pipeline {
                     withCredentials([
                         string(credentialsId: 'JWT_SECRET_KEY', variable: 'JWT_SECRET_KEY'),
                         string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY')
+                        string(credentialsId: 'NAVER_CLIENT_ID', variable: 'NAVER_CLIENT_ID'),
+                        string(credentialsId: 'NAVER_CLIENT_SECRET', variable: 'NAVER_CLIENT_SECRET')
                     ]) {
                         // 기존 컨테이너 중지 및 삭제
                         sh """
@@ -81,17 +89,15 @@ pipeline {
 
                         // Docker Compose 실행
                         sh """
-                        JWT_SECRET_KEY=$JWT_SECRET_KEY \
-                        OPENAI_API_KEY=$OPENAI_API_KEY \
-                        SPRING_REDIS_HOST=redis \
-                        SPRING_REDIS_PORT=6379 \
                         docker-compose down || true
+                        docker-compose up -d
 
                         JWT_SECRET_KEY=$JWT_SECRET_KEY \
                         OPENAI_API_KEY=$OPENAI_API_KEY \
+                        NAVER_CLIENT_ID=$NAVER_CLIENT_ID \
+                        NAVER_CLIENT_SECRET=$NAVER_CLIENT_SECRET \
                         SPRING_REDIS_HOST=redis \
                         SPRING_REDIS_PORT=6379 \
-                        docker-compose up -d
                         """
                     }
                 }
