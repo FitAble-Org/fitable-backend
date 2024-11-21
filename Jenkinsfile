@@ -72,7 +72,7 @@ pipeline {
                 script {
                     withCredentials([
                         string(credentialsId: 'JWT_SECRET_KEY', variable: 'JWT_SECRET_KEY'),
-                        string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY')
+                        string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY'),
                         string(credentialsId: 'NAVER_CLIENT_ID', variable: 'NAVER_CLIENT_ID'),
                         string(credentialsId: 'NAVER_CLIENT_SECRET', variable: 'NAVER_CLIENT_SECRET')
                     ]) {
