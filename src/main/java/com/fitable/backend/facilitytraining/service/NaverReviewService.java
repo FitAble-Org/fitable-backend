@@ -32,6 +32,8 @@ public class NaverReviewService {
         String clientId = System.getProperty("naver.client-id");
         String clientSecret = System.getProperty("naver.client-secret");
 
+        log.info("Client ID: {}, Client Secret: {}", clientId, clientSecret); // 확인 로그 추가
+
         if (clientId == null || clientSecret == null) {
             throw new IllegalStateException("Naver API credentials are not set");
         }
@@ -50,4 +52,5 @@ public class NaverReviewService {
                 .doOnError(e -> log.error("Error fetching reviews: {}", e.getMessage()))
                 .block()));
     }
+
 }
