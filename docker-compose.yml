@@ -14,6 +14,8 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY:?Variable OPENAI_API_KEY is missing}
       - SPRING_REDIS_HOST=redis  # Redis 컨테이너 이름을 호스트로 사용
       - SPRING_REDIS_PORT=6379
+      - NAVER_CLIENT_ID=${NAVER_CLIENT_ID}
+      - NAVER_CLIENT_SECRET=${NAVER_CLIENT_SECRET}
     depends_on:
       - redis
     networks:
