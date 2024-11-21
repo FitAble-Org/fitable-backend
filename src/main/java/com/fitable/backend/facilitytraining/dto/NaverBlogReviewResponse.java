@@ -4,10 +4,10 @@ import lombok.Data;
 
 @Data
 public class NaverBlogReviewResponse {
-    private String title;        // 블로그 글 제목
-    private String description;  // 블로그 글 설명
-    private String link;         // 블로그 글 URL
-    private String bloggername;  // 블로거 이름
-    private String postdate;     // 게시 날짜
-    private String thumbnail;    // 썸네일 URL (추가적으로 처리 가능)
+    private String title;       // 블로그 포스트 제목
+    private String link;        // 블로그 포스트 URL
+    private String description; // 요약된 내용
+    private String bloggername; // 블로그 이름
+    private String bloggerlink; // 블로그 주소
+    private String postdate;    // 작성 날짜
 }
