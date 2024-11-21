@@ -2,6 +2,7 @@ package com.fitable.backend.facilitytraining.service;
 
 import com.fitable.backend.facilitytraining.dto.NaverBlogReviewResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -13,6 +14,12 @@ import java.util.Objects;
 public class NaverReviewService {
 
     private final WebClient webClient;
+
+    @Value("${naver.client-id}")
+    private String clientId;
+
+    @Value("${naver.client-secret}")
+    private String clientSecret;
 
     public NaverReviewService(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.baseUrl("https://openapi.naver.com/v1/search").build();
@@ -27,10 +34,6 @@ public class NaverReviewService {
      */
     public List<NaverBlogReviewResponse> fetchBlogReviews(String query, int display) {
         log.info("Fetching reviews for query: {}", query);
-
-        // 환경 변수에서 클라이언트 ID와 시크릿 가져오기
-        String clientId = System.getProperty("naver.client-id");
-        String clientSecret = System.getProperty("naver.client-secret");
 
         log.info("Client ID: {}, Client Secret: {}", clientId, clientSecret); // 확인 로그 추가
 
