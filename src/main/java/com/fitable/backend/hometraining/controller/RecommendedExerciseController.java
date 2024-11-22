@@ -42,12 +42,12 @@ public class RecommendedExerciseController {
     }
 
     @GetMapping("/instruction")
-    public ResponseEntity<String> getExerciseInstruction(@RequestParam String exerciseName) {
-        if (exerciseName == null || exerciseName.isEmpty()) {
-            return ResponseEntity.badRequest().body("운동 이름을 입력해주세요.");
+    public ResponseEntity<String> getExerciseInstruction(@RequestParam long exerciseId) {
+        if (exerciseId == 0) {
+            return ResponseEntity.badRequest().body("운동 번호를 입력해주세요.");
         }
 
-        Optional<String> instruction = recommendedExerciseService.getInstructionByExerciseName(exerciseName);
+        Optional<String> instruction = recommendedExerciseService.getInstructionByExerciseId(exerciseId);
         if (instruction.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 운동의 설명을 찾을 수 없습니다.");
         }
