@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,7 +19,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 @Configuration
 public class SecurityConfig {
@@ -37,11 +37,15 @@ public class SecurityConfig {
                         // CORS 사전 요청(OPTIONS)은 인증 없이 허용
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // 로그인 및 회원가입 경로는 인증 없이 접근 가능
-                        .requestMatchers("/api/users/login", "/api/users/register", "/error", "/").permitAll()
+                        .requestMatchers("/api/users/login", "/api/users/register", "/error", "/api/users/refresh").permitAll()
                         // 나머지 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable) // CSRF 보호 비활성화
+                .sessionManagement(session -> session
+                        .sessionFixation(SessionManagementConfigurer.SessionFixationConfigurer::none)
+                )
+                .securityContext(securityContext -> securityContext.requireExplicitSave(false)) //익명 인증 비활성화
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless 모드 설정
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
@@ -66,7 +70,8 @@ public class SecurityConfig {
         config.setAllowedOriginPatterns(Arrays.asList(
                 "https://fitable.kro.kr",      // 프론트엔드 도메인
                 "https://api.fitable.kro.kr",  // API 도메인
-                "http://43.201.248.185" //테스트용 IP
+                "http://43.201.248.185", //테스트용 IP
+                "http://localhost:5173" //테스트용 로컬 프론트
         ));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));

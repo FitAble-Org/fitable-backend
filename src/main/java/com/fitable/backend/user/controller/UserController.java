@@ -57,7 +57,7 @@ public class UserController {
                     .headers(headers)
                     .header("Set-Cookie", refreshTokenCookie.toString())
                     // 디버깅용 액세스 토큰 반환! 추후 없앨 것
-                    .body(tokens.get("accessToken"));
+                    .body(tokens.get("accessToken") + "\n" + tokens.get("refreshToken"));
         } catch (RuntimeException e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);

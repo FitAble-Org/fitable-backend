@@ -55,17 +55,15 @@ public class User {
     // 나이
     @Getter
     public enum AgeGroup {
-        TEENAGER("10대"), // 청소년 10대
-        YOUNG_ADULT("20대 30대"), // 청년 2~30대
-        MIDDLE_AGED("40대 50대"), // 중년 4~50대
-        SENIOR("60대"); // 장년 60대 이상
+        YOUNG_ADULT("10대 20대"), // 청년 10~20대
+        MIDDLE_AGED("30대 40대"), // 중년 30~40대
+        SENIOR("50대"); // 중장년 50대 이상
 
         private final String description;
 
         AgeGroup(String description) {
             this.description = description;
         }
-
     }
 
     // 성별

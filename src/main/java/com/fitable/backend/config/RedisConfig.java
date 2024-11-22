@@ -26,7 +26,7 @@ public class RedisConfig {
     public CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
         serializer.setSameSite("None");
-        serializer.setUseSecureCookie(false); // HTTP 환경 테스트 시 false, 배포 시 true
+        serializer.setUseSecureCookie(true); // HTTP 환경 테스트 시 false, 배포 시 true
         return serializer;
     }
 

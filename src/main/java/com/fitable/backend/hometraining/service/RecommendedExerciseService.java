@@ -31,7 +31,8 @@ public class RecommendedExerciseService {
                     user.getDisabilityType().getDescription(),
                     user.getDisabilityLevel().getDescription(),
                     user.getGender().getDescription(),
-                    ageGroup[0]);
+                    ageGroup[0],
+                    "60대");
         }
         else{
             recommendedExercises = recommendedExerciseRepository.findByTroubleTypeAndTroubleGradeAndGenderCodeAndAge(
