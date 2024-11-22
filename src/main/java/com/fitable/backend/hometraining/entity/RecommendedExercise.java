@@ -40,4 +40,6 @@ public class RecommendedExercise {
     @CsvBindByName(column = "FLAG_ACCTO_RECOMEND_MVM_RANK_CO")
     @CsvNumber("0")
     private Integer movementRank;
+
+    private String movementInstructions;
 }

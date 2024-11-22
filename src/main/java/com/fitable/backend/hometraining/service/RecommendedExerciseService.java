@@ -55,4 +55,9 @@ public class RecommendedExerciseService {
     public void saveAllExercises(List<RecommendedExercise> exercises) {
         recommendedExerciseRepository.saveAll(exercises);
     }
+
+    public Optional<String> getInstructionByExerciseName(String exerciseName) {
+            // 레포지토리 메서드를 호출하여 운동 설명을 조회
+        return recommendedExerciseRepository.findInstructionByExerciseName(exerciseName);
+    }
 }

@@ -40,4 +40,18 @@ public class RecommendedExerciseController {
 
         return new ResponseEntity<>(RecommendedExerciseList, HttpStatus.OK);
     }
+
+    @GetMapping("/instruction")
+    public ResponseEntity<String> getExerciseInstruction(@RequestParam String exerciseName) {
+        if (exerciseName == null || exerciseName.isEmpty()) {
+            return ResponseEntity.badRequest().body("운동 이름을 입력해주세요.");
+        }
+
+        Optional<String> instruction = recommendedExerciseService.getInstructionByExerciseName(exerciseName);
+        if (instruction.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 운동의 설명을 찾을 수 없습니다.");
+        }
+
+        return new ResponseEntity<>(instruction.get(), HttpStatus.OK);
+    }
 }
