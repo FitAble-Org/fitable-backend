@@ -10,6 +10,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Data // 추후에 제거
@@ -34,7 +35,7 @@ public class Calendar {
     private int duration;
 
     @CreatedDate
-    private LocalDate datePerformed;
+    private LocalDateTime datePerformed;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
