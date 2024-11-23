@@ -4,11 +4,10 @@ import com.fitable.backend.facilitytraining.dto.FacilityItemNamesWithGptResponse
 import com.fitable.backend.facilitytraining.dto.FacilityResponse;
 import com.fitable.backend.facilitytraining.dto.LocationRequest;
 import com.fitable.backend.facilitytraining.entity.Facility;
-import com.fitable.backend.facilitytraining.repository.FacilityRepository;
+import com.fitable.backend.facilitytraining.mapper.FacilityMapper;
 import jakarta.servlet.http.HttpSession;
-import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -17,22 +16,19 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class FacilityService {
 
-    @Autowired
-    private FacilityRepository facilityRepository;
+    private final FacilityMapper facilityMapper;
+    private final OpenAiService openAiService;
 
-    @Autowired
-    private OpenAiService openAiService;
-
-    @Transactional
     public void saveAllFacilities(List<Facility> facilities) {
-        facilityRepository.saveAll(facilities);
+        facilityMapper.saveFacilities(facilities);
     }
 
-    public Optional<Facility> getFacilityById(long id){
-        return facilityRepository.findById(id);
+    public Optional<Facility> getFacilityById(long id) {
+        return Optional.ofNullable(facilityMapper.findById(id));
     }
 
     public Mono<FacilityItemNamesWithGptResponse> findFacilitiesWithinRadius(LocationRequest locationRequest, HttpSession session) {
@@ -40,7 +36,7 @@ public class FacilityService {
         double y = locationRequest.getY();
         double radiusKm = locationRequest.getRadiusKm();
 
-        List<Facility> facilities = facilityRepository.findFacilitiesWithinRadius(x, y, radiusKm);
+        List<Facility> facilities = facilityMapper.findFacilitiesWithinRadius(x, y, radiusKm);
         List<FacilityResponse> facilityResponses = facilities.stream().map(facility -> {
             FacilityResponse response = new FacilityResponse();
             response.setId(facility.getId());
@@ -82,7 +78,7 @@ public class FacilityService {
         List<FacilityResponse> filteredResponses = facilityResponses.stream()
                 .filter(response -> response.getItemNm().equals(itemName))
                 .peek(response -> {
-                    if(response.getFcltyCourseSdivNm().isEmpty()) response.setFcltyCourseSdivNm("강좌 없음");
+                    if (response.getFcltyCourseSdivNm().isEmpty()) response.setFcltyCourseSdivNm("강좌 없음");
                     else response.setFcltyCourseSdivNm(response.getItemNm() + " 강좌");
                 })
                 .collect(Collectors.toList());
