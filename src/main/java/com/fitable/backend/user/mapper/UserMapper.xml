@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fitable.backend.user.mapper.UserMapper">
+
+    <resultMap id="userResultMap" type="com.fitable.backend.user.entity.User">
+        <id column="user_id" property="userId"/>
+        <result column="login_id" property="loginId"/>
+        <result column="password" property="password"/>
+        <result column="age_group" property="ageGroup"/>
+        <result column="gender" property="gender"/>
+        <result column="disability_type" property="disabilityType"/>
+        <result column="disability_level" property="disabilityLevel"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <select id="findByLoginId" resultMap="userResultMap">
+        SELECT * FROM users WHERE login_id = #{loginId}
+    </select>
+
+    <select id="existsByLoginId" resultType="boolean">
+        SELECT COUNT(1) > 0 FROM users WHERE login_id = #{loginId}
+    </select>
+
+    <insert id="registerUser">
+        INSERT INTO users (login_id, password, age_group, gender, disability_type, disability_level, created_at, updated_at)
+        VALUES (#{loginId}, #{password}, #{ageGroup}, #{gender}, #{disabilityType}, #{disabilityLevel}, NOW(), NOW())
+    </insert>
+
+    <update id="updateUserInfoByLoginId">
+        UPDATE users
+        SET age_group = #{ageGroup}, gender = #{gender}, disability_type = #{disabilityType}, disability_level = #{disabilityLevel}, updated_at = NOW()
+        WHERE login_id = #{loginId}
+    </update>
+</mapper>
