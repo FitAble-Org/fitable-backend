@@ -24,7 +24,6 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
@@ -44,12 +43,15 @@ dependencies {
 	// GPT API와의 통신을 위한 WebClient 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	// test properties 설정을 위한 H2 의존성
-	testImplementation 'com.h2database:h2'
+	// testImplementation 'com.h2database:h2'
 	// Redis 의존성
 	implementation 'org.springframework.session:spring-session-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	// JSON 직렬화
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
+	// MySQL 드라이버
+	implementation 'mysql:mysql-connector-java:8.0.33'
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.2'
 }
 
 tasks.named('test') {
