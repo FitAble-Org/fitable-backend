@@ -5,7 +5,7 @@ import com.fitable.backend.user.dto.ProfileUpdateRequest;
 import com.fitable.backend.user.dto.RegisterRequest;
 import com.fitable.backend.user.entity.User;
 import com.fitable.backend.user.exception.UserNotFoundException;
-import com.fitable.backend.user.repository.UserRepository;
+import com.fitable.backend.user.mapper.UserMapper;
 import com.fitable.backend.user.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class UserService {
 
-    private final UserRepository userRepository;
+    private final UserMapper userMapper; // MyBatis Mapper 사용
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtil jwtTokenUtil;
     private final CustomUserDetailsService customUserDetailsService;
@@ -37,20 +37,22 @@ public class UserService {
             throw new IllegalArgumentException("Login ID already exists");
         }
 
-        User newUser = new User(registerRequest.getLoginId(),
+        User newUser = new User(
+                registerRequest.getLoginId(),
                 passwordEncoder.encode(registerRequest.getPassword()),
                 registerRequest.getAgeGroup(),
                 registerRequest.getGender(),
                 registerRequest.getDisabilityType(),
-                registerRequest.getDisabilityLevel());
+                registerRequest.getDisabilityLevel()
+        );
 
-        userRepository.save(newUser);
+        userMapper.registerUser(newUser); // MyBatis를 사용한 회원 가입
         log.info("User registered successfully: {}", registerRequest.getLoginId());
     }
 
     // 사용자 존재 여부 확인
     public boolean existsByLoginId(String loginId) {
-        return userRepository.existsByLoginId(loginId);
+        return userMapper.existsByLoginId(loginId); // MyBatis를 사용한 존재 여부 확인
     }
 
     public Map<String, String> login(String loginId, String password) {
@@ -65,10 +67,10 @@ public class UserService {
 
         // Redis에 리프레시 토큰 저장
         redisTemplate.opsForValue().set(
-                "refreshToken:" + loginId, // Redis 키
-                refreshToken,             // Redis 값
-                jwtTokenUtil.getRefreshTokenExpireTime(), // 만료 시간
-                TimeUnit.MILLISECONDS     // 시간 단위
+                "refreshToken:" + loginId,
+                refreshToken,
+                jwtTokenUtil.getRefreshTokenExpireTime(),
+                TimeUnit.MILLISECONDS
         );
 
         log.info("JWT Token generated and stored in Redis for user: {}", loginId);
@@ -96,17 +98,17 @@ public class UserService {
 
     // 사용자 로그인 ID로 조회
     public Optional<User> findByLoginId(String loginId) {
-        return userRepository.findByLoginId(loginId);
+        return Optional.ofNullable(userMapper.findByLoginId(loginId)); // MyBatis를 사용한 조회
     }
 
     public User getUserById(Long userId) {
-        return userRepository.findById(userId).orElse(null);
+        throw new UnsupportedOperationException("MyBatis 기반으로 ID 조회는 구현되지 않았습니다.");
     }
 
     public void updateUser(UserDetails userDetails, ProfileUpdateRequest request) {
-        if(userDetails==null) throw new RuntimeException("User is not authenticated");
+        if (userDetails == null) throw new RuntimeException("User is not authenticated");
 
-        int changed = userRepository.updateUserInfoByLoginId(
+        int changed = userMapper.updateUserInfoByLoginId(
                 userDetails.getUsername(),
                 request.getAgeGroup(),
                 request.getGender(),
@@ -114,15 +116,14 @@ public class UserService {
                 request.getDisabilityLevel()
         );
 
-        if(changed!=1)throw new RuntimeException("User not found.");
+        if (changed != 1) throw new RuntimeException("User not found.");
     }
 
     public ProfileResponse getUserProfile(UserDetails userDetails) {
-        if(userDetails==null) throw new RuntimeException("User is not authenticated");
+        if (userDetails == null) throw new RuntimeException("User is not authenticated");
 
-        Optional<User> userOpt = userRepository.findByLoginId(userDetails.getUsername());
-        if(userOpt.isEmpty()) throw new RuntimeException("User not found.");
-        User user = userOpt.get();
+        User user = userMapper.findByLoginId(userDetails.getUsername());
+        if (user == null) throw new RuntimeException("User not found.");
 
         ProfileResponse profileResponse = new ProfileResponse();
         profileResponse.setLoginId(user.getLoginId());
@@ -132,28 +133,21 @@ public class UserService {
         profileResponse.setDisabilityLevel(user.getDisabilityLevel().getDescription());
 
         return profileResponse;
-
     }
 
     // refreshToken 갱신
     public String refreshToken(String refreshToken) {
         try {
-            // 토큰에서 사용자 이름 추출
             String username = jwtTokenUtil.extractUsername(refreshToken);
 
-            // Redis에서 저장된 리프레시 토큰 가져오기
             String storedRefreshToken = (String) redisTemplate.opsForValue().get("refreshToken:" + username);
 
-            // Redis에 저장된 토큰과 요청 토큰 비교
             if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
                 throw new RuntimeException("Invalid or expired refresh token");
             }
 
-            // 새 Access Token 생성
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-            String newAccessToken = jwtTokenUtil.generateToken(userDetails);
-
-            return newAccessToken;
+            return jwtTokenUtil.generateToken(userDetails);
         } catch (Exception e) {
             throw new RuntimeException("Error refreshing token");
         }
@@ -161,6 +155,6 @@ public class UserService {
 
     // 로그아웃
     public void logout(String loginId) {
-        redisTemplate.delete("refreshToken:" + loginId); // refreshToken 삭제
+        redisTemplate.delete("refreshToken:" + loginId);
     }
 }
