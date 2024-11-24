@@ -2,6 +2,7 @@ package com.fitable.backend.hometraining.service;
 
 import com.fitable.backend.hometraining.dto.RecommendedExerciseResponse;
 import com.fitable.backend.hometraining.entity.RecommendedExercise;
+import com.fitable.backend.hometraining.mapper.RecommendedExerciseMapper;
 import com.fitable.backend.hometraining.repository.RecommendedExerciseRepository;
 import com.fitable.backend.user.entity.User;
 import org.springframework.stereotype.Service;
@@ -13,34 +14,35 @@ import java.util.stream.Collectors;
 @Service
 public class RecommendedExerciseService {
 
-    private final RecommendedExerciseRepository recommendedExerciseRepository;
+    private final RecommendedExerciseMapper recommendedExerciseMapper;
 
-    public RecommendedExerciseService(RecommendedExerciseRepository recommendedExerciseRepository){
-        this.recommendedExerciseRepository = recommendedExerciseRepository;
+    public RecommendedExerciseService(RecommendedExerciseMapper recommendedExerciseMapper) {
+        this.recommendedExerciseMapper = recommendedExerciseMapper;
     }
 
+
     public Optional<RecommendedExercise> getRecommendedExerciseById(long id){
-        return recommendedExerciseRepository.findById(id);
+        return Optional.ofNullable(recommendedExerciseMapper.getRecommendedExerciseById(id));
     }
 
     public List<RecommendedExerciseResponse> getRecommendedExerciseByUserInfo(User user) {
         String[] ageGroup = user.getAgeGroup().getDescription().split(" ");
         List<RecommendedExercise> recommendedExercises;
-        if(ageGroup.length==1) {
-            recommendedExercises = recommendedExerciseRepository.findByTroubleTypeAndTroubleGradeAndGenderCodeAndAge(
+        if (ageGroup.length == 1) {
+            recommendedExercises = recommendedExerciseMapper.getRecommendedExerciseByTroubleTypeAndTroubleGradeAndGenderCodeAndSingleAge(
+                    user.getDisabilityType().getDescription(),
+                    user.getDisabilityLevel().getDescription(),
+                    user.getGender().getDescription(),
+                    ageGroup[0]
+            );
+        } else {
+            recommendedExercises = recommendedExerciseMapper.getRecommendedExerciseByTroubleTypeAndTroubleGradeAndGenderCodeAndAge(
                     user.getDisabilityType().getDescription(),
                     user.getDisabilityLevel().getDescription(),
                     user.getGender().getDescription(),
                     ageGroup[0],
-                    "60대");
-        }
-        else{
-            recommendedExercises = recommendedExerciseRepository.findByTroubleTypeAndTroubleGradeAndGenderCodeAndAge(
-                    user.getDisabilityType().getDescription(),
-                    user.getDisabilityLevel().getDescription(),
-                    user.getGender().getDescription(),
-                    ageGroup[0],
-                    ageGroup[1]);
+                    ageGroup[1]
+            );
         }
         return recommendedExercises.stream()
                 .map(recommendedExercise -> new RecommendedExerciseResponse(
@@ -53,11 +55,10 @@ public class RecommendedExerciseService {
     }
 
     public void saveAllExercises(List<RecommendedExercise> exercises) {
-        recommendedExerciseRepository.saveAll(exercises);
+        exercises.forEach(recommendedExerciseMapper::saveRecommendedExercise);
     }
 
     public Optional<String> getInstructionByExerciseId(long exerciseId) {
-            // 레포지토리 메서드를 호출하여 운동 설명을 조회
-        return recommendedExerciseRepository.findInstructionByExerciseId(exerciseId);
+        return recommendedExerciseMapper.getInstructionByExerciseId(exerciseId);
     }
 }
