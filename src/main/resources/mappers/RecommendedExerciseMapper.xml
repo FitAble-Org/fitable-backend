@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fitable.backend.hometraining.mapper.RecommendedExerciseMapper">
+
+    <!-- ID로 조회 -->
+    <select id="getRecommendedExerciseById" resultType="com.fitable.backend.hometraining.entity.RecommendedExercise">
+        SELECT * FROM recommended_exercise WHERE id = #{id}
+    </select>
+
+    <!-- 복수의 Age 조건으로 조회 -->
+    <select id="getRecommendedExerciseByTroubleTypeAndTroubleGradeAndGenderCodeAndAge" resultType="com.fitable.backend.hometraining.entity.RecommendedExercise">
+        SELECT *
+        FROM recommended_exercise
+        WHERE trouble_type = #{troubleType}
+          AND trouble_grade = #{troubleGrade}
+          AND gender_code = #{genderCode}
+          AND (age = #{age1} OR age = #{age2})
+    </select>
+
+    <!-- 단일 Age 조건으로 조회 -->
+    <select id="getRecommendedExerciseByTroubleTypeAndTroubleGradeAndGenderCodeAndSingleAge" resultType="com.fitable.backend.hometraining.entity.RecommendedExercise">
+        SELECT *
+        FROM recommended_exercise
+        WHERE trouble_type = #{troubleType}
+          AND trouble_grade = #{troubleGrade}
+          AND gender_code = #{genderCode}
+          AND age = #{age}
+    </select>
+
+    <!-- 추천 운동 저장 -->
+    <insert id="saveRecommendedExercise">
+        INSERT INTO recommended_exercise (age, gender_code, trouble_type, trouble_grade, sports_step, recommended_movement, movement_rank, movement_instructions)
+        VALUES (#{age}, #{genderCode}, #{troubleType}, #{troubleGrade}, #{sportsStep}, #{recommendedMovement}, #{movementRank}, #{movementInstructions})
+    </insert>
+
+    <!-- ID로 운동 설명 조회 -->
+    <select id="getInstructionByExerciseId" resultType="String">
+        SELECT movement_instructions
+        FROM recommended_exercise
+        WHERE id = #{exerciseId}
+    </select>
+
+</mapper>
