@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 @MapperScan({"com.fitable.backend.facilitytraining.mapper",
-		"com.fitable.backend.user.mapper"})
+		"com.fitable.backend.user.mapper", "com.fitable.backend.hometraining.mapper"})
 public class BackendApplication {
 
 	public static void main(String[] args) {
