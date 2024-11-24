@@ -4,12 +4,10 @@ import com.fitable.backend.calendar.dto.AddCalendarRequest;
 import com.fitable.backend.calendar.dto.CalendarResponse;
 import com.fitable.backend.calendar.dto.UpdateCalendarRequest;
 import com.fitable.backend.calendar.entity.Calendar;
-import com.fitable.backend.calendar.repository.CalendarRepository;
+import com.fitable.backend.calendar.mapper.CalendarMapper;
 import com.fitable.backend.facilitytraining.entity.Facility;
 import com.fitable.backend.hometraining.entity.RecommendedExercise;
 import com.fitable.backend.user.entity.User;
-import com.fitable.backend.user.service.UserService;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +18,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class CalendarService {
-    private final CalendarRepository calendarRepository;
-    private final UserService userService;
+    private final CalendarMapper calendarMapper;
 
     @Autowired
-    public CalendarService(CalendarRepository calendarRepository, UserService userService){
-        this.calendarRepository = calendarRepository;
-        this.userService = userService;
+    public CalendarService(CalendarMapper calendarMapper) {
+        this.calendarMapper = calendarMapper;
     }
 
     public void addHomeTrainingCalendar(AddCalendarRequest request, User user, RecommendedExercise recommendedExercise) {
@@ -36,7 +32,7 @@ public class CalendarService {
                 request.getDuration(),
                 user
         );
-        calendarRepository.save(calendar);
+        calendarMapper.insertCalendar(calendar);
     }
 
     public void addFacilityCalendar(AddCalendarRequest request, User user, Facility facility) {
@@ -46,7 +42,7 @@ public class CalendarService {
                 request.getDuration(),
                 user
         );
-        calendarRepository.save(calendar);
+        calendarMapper.insertCalendar(calendar);
     }
 
     public List<CalendarResponse> getCalendarsByMonth(int year, int month, User user) {
@@ -54,7 +50,7 @@ public class CalendarService {
         LocalDate startDate = yearMonth.atDay(1); // 해당 월의 첫째 날
         LocalDate endDate = yearMonth.atEndOfMonth(); // 해당 월의 마지막 날
 
-        List<Calendar> calendars = calendarRepository.findByDatePerformedBetweenAndUser(startDate, endDate, user);
+        List<Calendar> calendars = calendarMapper.findByDatePerformedBetweenAndUser(startDate, endDate, user.getId());
         return calendars.stream()
                 .map(calendar -> {
                     CalendarResponse res = new CalendarResponse();
@@ -75,8 +71,8 @@ public class CalendarService {
     }
 
     public List<CalendarResponse> getCalendarsByDate(LocalDate date, User user) {
-        List<Calendar> calendar = calendarRepository.findByDatePerformedAndUser(date, user);
-        return calendar.stream()
+        List<Calendar> calendars = calendarMapper.findByDatePerformedAndUser(date, user.getId());
+        return calendars.stream()
                 .map(cal -> {
                     CalendarResponse res = new CalendarResponse();
                     res.setCalendarId(cal.getCalendarId());
@@ -96,11 +92,9 @@ public class CalendarService {
     }
 
     public void updateCalendar(UpdateCalendarRequest request) {
-        int changed = calendarRepository.updateDurationById(request.getId(), request.getDuration());
-        if(changed!=1){
-            throw new EntityNotFoundException();
+        int changed = calendarMapper.updateDurationById(request.getId(), request.getDuration());
+        if (changed != 1) {
+            throw new RuntimeException();
         }
-
-
     }
 }

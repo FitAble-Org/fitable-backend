@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fitable.backend.calendar.mapper.CalendarMapper">
+
+    <!-- 단일 Calendar 조회 -->
+    <select id="getCalendarById" resultType="com.fitable.backend.calendar.entity.Calendar">
+        SELECT *
+        FROM calendar
+        WHERE calendar_id = #{id}
+    </select>
+
+    <!-- 특정 날짜와 사용자로 Calendar 조회 -->
+    <select id="findByDatePerformedAndUser" resultType="com.fitable.backend.calendar.entity.Calendar">
+        SELECT *
+        FROM calendar
+        WHERE date_performed = #{date}
+          AND user_id = #{userId}
+    </select>
+
+    <!-- 날짜 범위와 사용자로 Calendar 조회 -->
+    <select id="findByDatePerformedBetweenAndUser" resultType="com.fitable.backend.calendar.entity.Calendar">
+        SELECT *
+        FROM calendar
+        WHERE date_performed BETWEEN #{startDate} AND #{endDate}
+          AND user_id = #{userId}
+    </select>
+
+    <!-- 운동 시간 업데이트 -->
+    <update id="updateDurationById">
+        UPDATE calendar
+        SET duration = #{duration}
+        WHERE calendar_id = #{id}
+    </update>
+
+    <!-- 새 Calendar 삽입 -->
+    <insert id="insertCalendar" parameterType="com.fitable.backend.calendar.entity.Calendar">
+        INSERT INTO calendar (recommended_exercise_id, facility_id, exercise_type, duration, date_performed, user_id)
+        VALUES (#{recommendedExercise.id}, #{facility.id}, #{exerciseType}, #{duration}, #{datePerformed}, #{user.id})
+    </insert>
+
+</mapper>
