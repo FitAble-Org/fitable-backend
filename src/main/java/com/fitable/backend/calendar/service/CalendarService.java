@@ -53,7 +53,7 @@ public class CalendarService {
         LocalDateTime endDate = yearMonth.atEndOfMonth().atTime(23, 59, 59);  // 해당 월의 마지막 날
 
         List<Calendar> calendars = calendarRepository.findByDatePerformedBetweenAndUser(startDate, endDate, user);
-        return calendars.stream()
+        List<CalendarResponse> calendarResponses = calendars.stream()
                 .map(calendar -> {
                     CalendarResponse res = new CalendarResponse();
                     res.setCalendarId(calendar.getCalendarId());
@@ -70,6 +70,8 @@ public class CalendarService {
                     return res;
                 })
                 .collect(Collectors.toList());
+        System.out.println(calendarResponses.size()+"개수");
+        return calendarResponses;
     }
 
 
