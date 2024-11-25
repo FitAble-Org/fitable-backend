@@ -71,6 +71,9 @@ public class CalendarService {
                 })
                 .collect(Collectors.toList());
         System.out.println(calendarResponses.size()+"개수");
+        for(CalendarResponse res:calendarResponses){
+            System.out.println(res.toString());
+        }
         return calendarResponses;
     }
 
