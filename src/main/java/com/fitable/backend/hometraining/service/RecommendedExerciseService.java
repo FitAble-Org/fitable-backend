@@ -3,7 +3,7 @@ package com.fitable.backend.hometraining.service;
 import com.fitable.backend.hometraining.dto.RecommendedExerciseResponse;
 import com.fitable.backend.hometraining.entity.RecommendedExercise;
 import com.fitable.backend.hometraining.mapper.RecommendedExerciseMapper;
-import com.fitable.backend.hometraining.repository.RecommendedExerciseRepository;
+//import com.fitable.backend.hometraining.repository.RecommendedExerciseRepository;
 import com.fitable.backend.user.entity.User;
 import org.springframework.stereotype.Service;
 
