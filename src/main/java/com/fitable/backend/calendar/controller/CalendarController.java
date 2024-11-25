@@ -97,7 +97,11 @@ public class CalendarController {
         if (user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        List<CalendarResponse> CalendarList = calendarService.getCalendarsByMonth(year, month, user.get());
-        return new ResponseEntity<>(CalendarList, HttpStatus.OK);
+        List<CalendarResponse> calendarList = calendarService.getCalendarsByMonth(year, month, user.get());
+
+        for(CalendarResponse res: calendarList){
+            System.out.println(res.toString());
+        }
+        return new ResponseEntity<>(calendarList, HttpStatus.OK);
     }
 }
