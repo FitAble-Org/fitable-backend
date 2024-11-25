@@ -10,12 +10,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CalendarRepository extends JpaRepository<Calendar, Long> {
-    List<Calendar> findByDatePerformedAndUser(LocalDate date, User user);
-
-    List<Calendar> findByDatePerformedBetweenAndUser(LocalDate startDate, LocalDate endDate, User user);
+    List<Calendar> findByDatePerformedBetweenAndUser(LocalDateTime startDate, LocalDateTime endDate, User user);
 
     @Modifying
     @Transactional

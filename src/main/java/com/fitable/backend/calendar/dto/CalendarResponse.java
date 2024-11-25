@@ -3,6 +3,7 @@ package com.fitable.backend.calendar.dto;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class CalendarResponse {
@@ -11,16 +12,16 @@ public class CalendarResponse {
     private String exerciseName;
     private String exerciseType;
     private int duration;
-    private LocalDate datePerformed;
+    private LocalDateTime datePerformed;
 
     public CalendarResponse(){}
 
-    public CalendarResponse(Long calendarId, Long exerciseId, String exerciseName, String exerciseType, int duration, LocalDate datePerformed ) {
+    public CalendarResponse(Long calendarId, Long exerciseId, String exerciseName, String exerciseType, int duration, LocalDateTime datePerformed ) {
         this.calendarId = calendarId;
         this.exerciseId = exerciseId;
         this.exerciseName = exerciseName;
         this.exerciseType = exerciseType;
         this.duration = duration;
-        this.datePerformed  = LocalDate.from(datePerformed );
+        this.datePerformed  = LocalDateTime.from(datePerformed );
     }
 }
