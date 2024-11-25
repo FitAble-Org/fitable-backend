@@ -87,21 +87,6 @@ public class CalendarController {
         }
     }
 
-    @GetMapping("/{date}")
-    public ResponseEntity<List<CalendarResponse>> getCalendar(@AuthenticationPrincipal UserDetails userDetails, @PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        if(userDetails==null){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        Optional<User> user = userService.findByLoginId(userDetails.getUsername());
-
-        if (user.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        List<CalendarResponse> CalendarList = calendarService.getCalendarsByDate(date, user.get());
-        return new ResponseEntity<>(CalendarList, HttpStatus.OK);
-    }
-
     @GetMapping("/{year}/{month}")
     public ResponseEntity<List<CalendarResponse>> getCalendar(@AuthenticationPrincipal UserDetails userDetails, @PathVariable("year") int year, @PathVariable("month") int month) {
         if(userDetails==null){
