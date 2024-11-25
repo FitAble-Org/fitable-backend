@@ -100,8 +100,9 @@ public class CalendarController {
         List<CalendarResponse> calendarList = calendarService.getCalendarsByMonth(year, month, user.get());
 
         for(CalendarResponse res: calendarList){
-            System.out.println(res.toString());
+            log.debug(res.toString());
         }
+
         return new ResponseEntity<>(calendarList, HttpStatus.OK);
     }
 }
