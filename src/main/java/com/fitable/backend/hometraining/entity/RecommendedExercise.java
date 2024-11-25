@@ -1,22 +1,22 @@
 package com.fitable.backend.hometraining.entity;
 
 import com.opencsv.bean.CsvBindByPosition;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+//import jakarta.persistence.Entity;
+//import jakarta.persistence.GeneratedValue;
+//import jakarta.persistence.GenerationType;
+//import jakarta.persistence.Id;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvNumber;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
+//@Entity
 @Getter
 @Setter
 public class RecommendedExercise {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @CsvBindByName(column = "AGRDE_FLAG_NM")
