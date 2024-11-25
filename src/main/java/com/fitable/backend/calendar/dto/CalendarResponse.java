@@ -23,4 +23,16 @@ public class CalendarResponse {
         this.duration = duration;
         this.datePerformed  = LocalDateTime.from(datePerformed );
     }
+
+    @Override
+    public String toString() {
+        return "CalendarResponse{" +
+                "calendarId=" + calendarId +
+                ", exerciseId=" + exerciseId +
+                ", exerciseName='" + exerciseName + '\'' +
+                ", exerciseType='" + exerciseType + '\'' +
+                ", duration=" + duration +
+                ", datePerformed=" + datePerformed +
+                '}';
+    }
 }
