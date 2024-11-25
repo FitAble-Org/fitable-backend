@@ -59,7 +59,7 @@ public class CalendarService {
                 .map(calendar -> {
                     CalendarResponse res = new CalendarResponse();
                     res.setCalendarId(calendar.getCalendarId());
-                    res.setDatePerformed(calendar.getDatePerformed());
+                    res.setDatePerformed(LocalDate.from(calendar.getDatePerformed()));
                     res.setDuration(calendar.getDuration());
                     res.setExerciseType(calendar.getExerciseType().getDescription());
                     if(calendar.getExerciseType() == Calendar.ExerciseType.HOME) {
@@ -80,7 +80,7 @@ public class CalendarService {
                 .map(cal -> {
                     CalendarResponse res = new CalendarResponse();
                     res.setCalendarId(cal.getCalendarId());
-                    res.setDatePerformed(cal.getDatePerformed());
+                    res.setDatePerformed(LocalDate.from(cal.getDatePerformed()));
                     res.setDuration(cal.getDuration());
                     res.setExerciseType(cal.getExerciseType().getDescription());
                     if(cal.getExerciseType()==Calendar.ExerciseType.HOME){
