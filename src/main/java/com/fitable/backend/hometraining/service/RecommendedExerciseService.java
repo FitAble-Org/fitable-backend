@@ -4,11 +4,15 @@ import com.fitable.backend.hometraining.dto.RecommendedExerciseResponse;
 import com.fitable.backend.hometraining.entity.RecommendedExercise;
 import com.fitable.backend.hometraining.repository.RecommendedExerciseRepository;
 import com.fitable.backend.user.entity.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+@Slf4j
 
 @Service
 public class RecommendedExerciseService {
@@ -25,6 +29,7 @@ public class RecommendedExerciseService {
 
     public List<RecommendedExerciseResponse> getRecommendedExerciseByUserInfo(User user) {
         String[] ageGroup = user.getAgeGroup().getDescription().split(" ");
+        log.debug(Arrays.toString(ageGroup));
         List<RecommendedExercise> recommendedExercises;
         if(ageGroup.length==1) {
             recommendedExercises = recommendedExerciseRepository.findByTroubleTypeAndTroubleGradeAndGenderCodeAndAge(
@@ -41,6 +46,10 @@ public class RecommendedExerciseService {
                     user.getGender().getDescription(),
                     ageGroup[0],
                     ageGroup[1]);
+        }
+        for(RecommendedExercise exercise: recommendedExercises){
+            log.debug(exercise.getSportsStep()+ exercise.getRecommendedMovement()+exercise.getMovementRank());
+
         }
         return recommendedExercises.stream()
                 .map(recommendedExercise -> new RecommendedExerciseResponse(
