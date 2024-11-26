@@ -40,6 +40,21 @@ public class User {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId=" + userId +
+                ", loginId='" + loginId + '\'' +
+                ", password='" + password + '\'' +
+                ", ageGroup=" + ageGroup +
+                ", gender=" + gender +
+                ", disabilityType=" + disabilityType +
+                ", disabilityLevel=" + disabilityLevel +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
+
     public User() {
     }
 
@@ -114,4 +129,6 @@ public class User {
             this.description = description;
         }
     }
+
+
 }

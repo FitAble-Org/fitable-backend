@@ -29,7 +29,8 @@ public class RecommendedExerciseService {
 
     public List<RecommendedExerciseResponse> getRecommendedExerciseByUserInfo(User user) {
         String[] ageGroup = user.getAgeGroup().getDescription().split(" ");
-        log.debug(Arrays.toString(ageGroup));
+        log.debug("유저 정보: {}", user.toString());
+        log.debug("연령대: {}", Arrays.toString(ageGroup));
         List<RecommendedExercise> recommendedExercises;
         if(ageGroup.length==1) {
             recommendedExercises = recommendedExerciseRepository.findByTroubleTypeAndTroubleGradeAndGenderCodeAndAge(
