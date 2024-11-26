@@ -7,6 +7,7 @@ import com.fitable.backend.user.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -33,20 +34,21 @@ public class RecommendedExerciseService {
         log.info("연령대: {}", Arrays.toString(ageGroup));
         List<RecommendedExercise> recommendedExercises;
         if(ageGroup.length==1) {
-            recommendedExercises = recommendedExerciseRepository.findByTroubleTypeAndTroubleGradeAndGenderCodeAndAge(
+            recommendedExercises = recommendedExerciseRepository.distinctRecommendedExerciseByUser(
                     user.getDisabilityType().getDescription(),
-                    user.getDisabilityLevel().getDescription(),
                     user.getGender().getDescription(),
                     ageGroup[0],
-                    "60대");
+                    "60대",
+                    getSurroundingGrades(user.getDisabilityLevel().getDescription()));
+
         }
         else{
-            recommendedExercises = recommendedExerciseRepository.findByTroubleTypeAndTroubleGradeAndGenderCodeAndAge(
+            recommendedExercises = recommendedExerciseRepository.distinctRecommendedExerciseByUser(
                     user.getDisabilityType().getDescription(),
-                    user.getDisabilityLevel().getDescription(),
                     user.getGender().getDescription(),
                     ageGroup[0],
-                    ageGroup[1]);
+                    ageGroup[1],
+                    getSurroundingGrades(user.getDisabilityLevel().getDescription()));
         }
         for(RecommendedExercise exercise: recommendedExercises){
             log.info("{}{}{}", exercise.getSportsStep(), exercise.getRecommendedMovement(), exercise.getMovementRank());
@@ -69,5 +71,24 @@ public class RecommendedExerciseService {
     public Optional<String> getInstructionByExerciseId(long exerciseId) {
             // 레포지토리 메서드를 호출하여 운동 설명을 조회
         return recommendedExerciseRepository.findInstructionByExerciseId(exerciseId);
+    }
+
+    public List<String> getSurroundingGrades(String grade) {
+        // 등급 숫자를 추출 (예: "1등급" -> 1)
+        int currentGrade = Integer.parseInt(grade.replace("등급", ""));
+
+        // 최소 및 최대 등급 설정
+        int minGrade = Math.max(currentGrade - 1, 1); // 최소 1등급
+        int maxGrade = Math.min(currentGrade + 1, 6); // 최대 6등급
+
+        // 결과 배열 생성
+        List<String> result = new ArrayList<>();
+        int index = 0;
+        for (int i = minGrade; i <= maxGrade; i++) {
+            result.add(i + "등급") ;
+        }
+
+        // 배열 반환
+        return result;
     }
 }
