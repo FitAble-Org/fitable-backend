@@ -32,6 +32,7 @@ public class RecommendedExerciseService {
         String[] ageGroup = user.getAgeGroup().getDescription().split(" ");
         log.info("유저 정보: {}", user.toString());
         log.info("연령대: {}", Arrays.toString(ageGroup));
+        List<String> grades = getSurroundingGrades(user.getDisabilityLevel().getDescription(), user.getDisabilityType());
         List<RecommendedExercise> recommendedExercises;
         if(ageGroup.length==1) {
             recommendedExercises = recommendedExerciseRepository.distinctRecommendedExerciseByUser(
@@ -39,7 +40,7 @@ public class RecommendedExerciseService {
                     user.getGender().getDescription(),
                     ageGroup[0],
                     "60대",
-                    getSurroundingGrades(user.getDisabilityLevel().getDescription()));
+                    grades);
 
         }
         else{
@@ -48,7 +49,7 @@ public class RecommendedExerciseService {
                     user.getGender().getDescription(),
                     ageGroup[0],
                     ageGroup[1],
-                    getSurroundingGrades(user.getDisabilityLevel().getDescription()));
+                    grades);
         }
         for(RecommendedExercise exercise: recommendedExercises){
             log.info("{}{}{}", exercise.getSportsStep(), exercise.getRecommendedMovement(), exercise.getMovementRank());
@@ -73,16 +74,21 @@ public class RecommendedExerciseService {
         return recommendedExerciseRepository.findInstructionByExerciseId(exerciseId);
     }
 
-    public List<String> getSurroundingGrades(String grade) {
+    public List<String> getSurroundingGrades(String grade, User.DisabilityType type) {
         // 등급 숫자를 추출 (예: "1등급" -> 1)
+        // 결과 배열 생성
+        List<String> result = new ArrayList<>();
+
         int currentGrade = Integer.parseInt(grade.replace("등급", ""));
 
+        if(type==User.DisabilityType.SPINAL){
+            result.add(grade);
+            return result;
+        }
         // 최소 및 최대 등급 설정
         int minGrade = Math.max(currentGrade - 1, 1); // 최소 1등급
         int maxGrade = Math.min(currentGrade + 1, 6); // 최대 6등급
 
-        // 결과 배열 생성
-        List<String> result = new ArrayList<>();
         int index = 0;
         for (int i = minGrade; i <= maxGrade; i++) {
             result.add(i + "등급") ;
