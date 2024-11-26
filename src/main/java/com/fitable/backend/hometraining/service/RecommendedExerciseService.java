@@ -79,17 +79,16 @@ public class RecommendedExerciseService {
         // 결과 배열 생성
         List<String> result = new ArrayList<>();
 
-        int currentGrade = Integer.parseInt(grade.replace("등급", ""));
-
         if(type==User.DisabilityType.SPINAL){
             result.add(grade);
             return result;
         }
+        int currentGrade = Integer.parseInt(grade.replace("등급", ""));
+
         // 최소 및 최대 등급 설정
         int minGrade = Math.max(currentGrade - 1, 1); // 최소 1등급
         int maxGrade = Math.min(currentGrade + 1, 6); // 최대 6등급
 
-        int index = 0;
         for (int i = minGrade; i <= maxGrade; i++) {
             result.add(i + "등급") ;
         }
