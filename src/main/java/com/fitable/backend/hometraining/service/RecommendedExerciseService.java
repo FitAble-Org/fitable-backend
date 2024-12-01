@@ -1,10 +1,13 @@
 package com.fitable.backend.hometraining.service;
 
+import com.fitable.backend.hometraining.dto.InformationResponse;
 import com.fitable.backend.hometraining.dto.RecommendedExerciseResponse;
 import com.fitable.backend.hometraining.entity.RecommendedExercise;
 import com.fitable.backend.hometraining.repository.RecommendedExerciseRepository;
 import com.fitable.backend.user.entity.User;
+import com.fitable.backend.video.service.VideoService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,9 +22,12 @@ import java.util.stream.Collectors;
 public class RecommendedExerciseService {
 
     private final RecommendedExerciseRepository recommendedExerciseRepository;
+    private final VideoService videoService;
 
-    public RecommendedExerciseService(RecommendedExerciseRepository recommendedExerciseRepository){
+    @Autowired
+    public RecommendedExerciseService(RecommendedExerciseRepository recommendedExerciseRepository, VideoService videoService){
         this.recommendedExerciseRepository = recommendedExerciseRepository;
+        this.videoService = videoService;
     }
 
     public Optional<RecommendedExercise> getRecommendedExerciseById(long id){
@@ -69,11 +75,6 @@ public class RecommendedExerciseService {
         recommendedExerciseRepository.saveAll(exercises);
     }
 
-    public Optional<String> getInstructionByExerciseId(long exerciseId) {
-            // 레포지토리 메서드를 호출하여 운동 설명을 조회
-        return recommendedExerciseRepository.findInstructionByExerciseId(exerciseId);
-    }
-
     public List<String> getSurroundingGrades(String grade, User.DisabilityType type) {
         // 등급 숫자를 추출 (예: "1등급" -> 1)
         // 결과 배열 생성
@@ -95,5 +96,15 @@ public class RecommendedExerciseService {
 
         // 배열 반환
         return result;
+    }
+
+    public InformationResponse getInformationByExerciseId(long exerciseId) {
+        RecommendedExercise exercise = recommendedExerciseRepository.findById(exerciseId)
+                .orElseThrow(() -> new IllegalArgumentException("Exercise not found with ID: " + exerciseId));
+
+        return new InformationResponse(
+                exercise.getMovementInstructions(),
+                videoService.getVideoUrlsByTitle(exercise.getRecommendedMovement())
+        );
     }
 }

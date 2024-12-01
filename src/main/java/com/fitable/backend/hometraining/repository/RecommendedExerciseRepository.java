@@ -22,7 +22,4 @@ public interface RecommendedExerciseRepository extends JpaRepository<Recommended
             @Param("age1") String age1,
             @Param("age2") String age2,
             @Param("troubleGrades") List<String> troubleGrades);
-
-    @Query("SELECT e.movementInstructions FROM RecommendedExercise e WHERE e.id = :exerciseId")
-    Optional<String> findInstructionByExerciseId(long exerciseId);
 }

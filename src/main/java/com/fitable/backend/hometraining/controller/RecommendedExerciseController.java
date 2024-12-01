@@ -1,5 +1,6 @@
 package com.fitable.backend.hometraining.controller;
 
+import com.fitable.backend.hometraining.dto.InformationResponse;
 import com.fitable.backend.hometraining.dto.RecommendedExerciseResponse;
 import com.fitable.backend.hometraining.service.RecommendedExerciseService;
 import com.fitable.backend.user.entity.User;
@@ -41,17 +42,14 @@ public class RecommendedExerciseController {
         return new ResponseEntity<>(RecommendedExerciseList, HttpStatus.OK);
     }
 
-    @GetMapping("/instruction")
-    public ResponseEntity<String> getExerciseInstruction(@RequestParam long exerciseId) {
+    @GetMapping("/info")
+    public ResponseEntity<InformationResponse> getExerciseInformation(@RequestParam long exerciseId) {
         if (exerciseId == 0) {
-            return ResponseEntity.badRequest().body("운동 번호를 입력해주세요.");
+            return ResponseEntity.badRequest().build();
         }
 
-        Optional<String> instruction = recommendedExerciseService.getInstructionByExerciseId(exerciseId);
-        if (instruction.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 운동의 설명을 찾을 수 없습니다.");
-        }
+        InformationResponse informationResponse = recommendedExerciseService.getInformationByExerciseId(exerciseId);
 
-        return new ResponseEntity<>(instruction.get(), HttpStatus.OK);
+        return new ResponseEntity<>(informationResponse, HttpStatus.OK);
     }
 }
