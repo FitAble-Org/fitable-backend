@@ -16,15 +16,10 @@ public class ClubController {
         this.clubService = clubService;
     }
 
-    @GetMapping
-    public List<ClubResponseDto> getAllClubs() {
-        return clubService.getAllClubs();
-    }
-
     @GetMapping("/search")
     public List<ClubResponseDto> getClubsByRegionAndDisabilityType(
-            @RequestParam String ctprvnNm,
-            @RequestParam String troblTyNm) {
+            @RequestParam(required = false, defaultValue = "전체") String ctprvnNm,
+            @RequestParam(required = false, defaultValue = "전체") String troblTyNm) {
         return clubService.getClubsByRegionAndDisabilityType(ctprvnNm, troblTyNm);
     }
 }
