@@ -35,6 +35,12 @@ public class ClubService {
                 .collect(Collectors.toList());
     }
 
+    public ClubResponseDto getClubById(Integer id) {
+        Club club = clubRepository.findById(Long.valueOf(id))
+                .orElseThrow(() -> new IllegalArgumentException("클럽 ID가 유효하지 않습니다: " + id));
+        return convertToDto(club);
+    }
+
     private ClubResponseDto convertToDto(Club club) {
         return new ClubResponseDto(
                 club.getClubId(),
