@@ -104,6 +104,16 @@ public class UserController {
         }
     }
 
+    @GetMapping("/id")
+    public ResponseEntity<String> getUserId(@AuthenticationPrincipal UserDetails userDetails){
+        if(userDetails!=null){
+            return ResponseEntity.ok().body(userDetails.getUsername());
+        }
+        else{
+        return ResponseEntity.ok().body("");
+        }
+    }
+
     // 쿠키 생성 메서드
     private ResponseCookie createCookie(String name, String value, int maxAge) {
         return ResponseCookie.from(name, value)
