@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,8 +45,14 @@ public class BoardService {
 
     @Transactional(readOnly = true)
     public List<BoardResponse> getAllBoards() {
-        return boardRepository.findAll().stream()
-                .map(this::mapToResponseDto)
+        List<Object[]> boardsWithCommentCount = boardRepository.findAllBoardsWithCommentCount();
+
+        return boardsWithCommentCount.stream()
+                .map(obj -> {
+                    Board board = (Board) obj[0];
+                    Long commentCount = Optional.ofNullable((Long) obj[1]).orElse(0L);
+                    return mapToResponseDto(board, commentCount);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -84,6 +91,10 @@ public class BoardService {
     }
 
     private BoardResponse mapToResponseDto(Board board) {
+        return mapToResponseDto(board, 0L); // 기본 댓글 개수 0으로 설정
+    }
+
+    private BoardResponse mapToResponseDto(Board board, Long commentCount) {
         BoardResponse responseDto = new BoardResponse();
         responseDto.setBoardId(board.getBoardId());
         responseDto.setTitle(board.getTitle());
@@ -91,6 +102,7 @@ public class BoardService {
         responseDto.setLoginId(board.getUser().getLoginId());
         responseDto.setCreatedAt(board.getCreatedAt());
         responseDto.setUpdatedAt(board.getUpdatedAt());
+        responseDto.setCommentCount(commentCount);
         return responseDto;
     }
 }
