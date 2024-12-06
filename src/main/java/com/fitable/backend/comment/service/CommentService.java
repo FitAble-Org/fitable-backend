@@ -62,6 +62,25 @@ public class CommentService {
         commentRepository.delete(comment);
     }
 
+    @Transactional
+    public CommentResponse updateComment(Long commentId, CommentRequest commentRequest, UserDetails userDetails) {
+        User user = userRepository.findByLoginId(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("User not found with loginId: " + userDetails.getUsername()));
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("Comment not found with id: " + commentId));
+
+        if (!comment.getUser().equals(user)) {
+            throw new SecurityException("User not authorized to update this comment");
+        }
+
+        comment.setContent(commentRequest.getContent());
+        Comment updatedComment = commentRepository.save(comment);
+
+        return mapToResponse(updatedComment);
+    }
+
+
     private CommentResponse mapToResponse(Comment comment) {
         CommentResponse response = new CommentResponse();
         response.setCommentId(comment.getCommentId());

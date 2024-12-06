@@ -36,4 +36,13 @@ public class CommentController {
             @AuthenticationPrincipal UserDetails userDetails) {
         commentService.deleteComment(commentId, userDetails);
     }
+
+    @PutMapping("/{commentId}")
+    public CommentResponse updateComment(
+            @PathVariable Long commentId,
+            @RequestBody CommentRequest commentRequest,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return commentService.updateComment(commentId, commentRequest, userDetails);
+    }
+
 }
