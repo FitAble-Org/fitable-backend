@@ -12,4 +12,5 @@ public class BoardResponse {
     private String loginId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private long commentCount;
 }
