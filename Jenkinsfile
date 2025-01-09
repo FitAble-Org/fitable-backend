@@ -75,8 +75,11 @@ pipeline {
                     ]) {
                         // 쿠버네티스 디플로이먼트 적용
                         sh """
-                        kubectl apply -f k8s/deployment.yaml
-                        kubectl apply -f k8s/service.yaml
+                        kubectl apply -f k8s/namespace.yaml
+                        kubectl apply -f k8s/secrets.yaml
+                        kubectl apply -f k8s/redis.yaml
+                        kubectl apply -f k8s/fitable-app.yaml
+                        kubectl apply -f k8s/nginx.yaml
                         kubectl apply -f k8s/ingress.yaml
                         """
                     }
