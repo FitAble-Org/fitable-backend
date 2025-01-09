@@ -64,7 +64,7 @@ pipeline {
             }
         }
 
-        stage('Deploy with Docker Compose') {
+        stage('Deploy to Kubernetes') {
             steps {
                 script {
                     withCredentials([
@@ -73,16 +73,11 @@ pipeline {
                         string(credentialsId: 'NAVER_CLIENT_ID', variable: 'NAVER_CLIENT_ID'),
                         string(credentialsId: 'NAVER_CLIENT_SECRET', variable: 'NAVER_CLIENT_SECRET')
                     ]) {
+                        // 쿠버네티스 디플로이먼트 적용
                         sh """
-                        docker stop ${DOCKER_CONTAINER_NAME} || true
-                        docker rm ${DOCKER_CONTAINER_NAME} || true
-                        docker-compose down || true
-
-                        JWT_SECRET_KEY=$JWT_SECRET_KEY \
-                        OPENAI_API_KEY=$OPENAI_API_KEY \
-                        NAVER_CLIENT_ID=$NAVER_CLIENT_ID \
-                        NAVER_CLIENT_SECRET=$NAVER_CLIENT_SECRET \
-                        docker-compose up -d
+                        kubectl apply -f k8s/deployment.yaml
+                        kubectl apply -f k8s/service.yaml
+                        kubectl apply -f k8s/ingress.yaml
                         """
                     }
                 }
