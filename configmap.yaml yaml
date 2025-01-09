@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fitable-config
+  namespace: fitable-namespace
+data:
+  DB_URL: "${DB_URL}"
+  DB_USERNAME: "${DB_USERNAME}"
+  DB_PASSWORD: "${DB_PASSWORD}"
+  SPRING_REDIS_HOST: "redis"
+  SPRING_REDIS_PORT: "6379"
