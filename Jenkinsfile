@@ -13,7 +13,6 @@ pipeline {
         DB_URL = credentials('DB_URL') // Jenkins에 저장된 DB URL
         DB_USERNAME = credentials('DB_USERNAME')  // Jenkins에 저장된 DB 사용자 이름 자격증명 ID
         DB_PASSWORD = credentials('DB_PASSWORD')  // Jenkins에 저장된 DB 비밀번호 자격증명 ID
-
     }
 
     triggers {
@@ -73,10 +72,38 @@ pipeline {
                         string(credentialsId: 'NAVER_CLIENT_ID', variable: 'NAVER_CLIENT_ID'),
                         string(credentialsId: 'NAVER_CLIENT_SECRET', variable: 'NAVER_CLIENT_SECRET')
                     ]) {
+                        // Base64로 환경변수 변환
+                        def jwtBase64 = sh(script: "echo -n $JWT_SECRET_KEY | base64", returnStdout: true).trim()
+                        def openaiBase64 = sh(script: "echo -n $OPENAI_API_KEY | base64", returnStdout: true).trim()
+                        def naverClientIdBase64 = sh(script: "echo -n $NAVER_CLIENT_ID | base64", returnStdout: true).trim()
+                        def naverClientSecretBase64 = sh(script: "echo -n $NAVER_CLIENT_SECRET | base64", returnStdout: true).trim()
+                        def dbUrlBase64 = sh(script: "echo -n $DB_URL | base64", returnStdout: true).trim()
+                        def dbUsernameBase64 = sh(script: "echo -n $DB_USERNAME | base64", returnStdout: true).trim()
+                        def dbPasswordBase64 = sh(script: "echo -n $DB_PASSWORD | base64", returnStdout: true).trim()
+
+                        // Kubernetes Secrets 생성
+                        sh """
+                        cat <<EOF | kubectl apply -f -
+                        apiVersion: v1
+                        kind: Secret
+                        metadata:
+                          name: fitable-secrets
+                          namespace: fitable-namespace
+                        type: Opaque
+                        data:
+                          JWT_SECRET_KEY: ${jwtBase64}
+                          OPENAI_API_KEY: ${openaiBase64}
+                          NAVER_CLIENT_ID: ${naverClientIdBase64}
+                          NAVER_CLIENT_SECRET: ${naverClientSecretBase64}
+                          DB_URL: ${dbUrlBase64}
+                          DB_USERNAME: ${dbUsernameBase64}
+                          DB_PASSWORD: ${dbPasswordBase64}
+                        EOF
+                        """
+
                         // 쿠버네티스 디플로이먼트 적용
                         sh """
                         kubectl apply -f k8s/namespace.yaml
-                        kubectl apply -f k8s/secrets.yaml
                         kubectl apply -f k8s/redis.yaml
                         kubectl apply -f k8s/fitable-app.yaml
                         kubectl apply -f k8s/nginx.yaml
