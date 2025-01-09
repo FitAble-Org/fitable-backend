@@ -26,10 +26,12 @@ metadata:
   name: nginx
   namespace: fitable-namespace
 spec:
-  ports:
-    - port: 80
-      targetPort: 80
-    - port: 443
-      targetPort: 443
   selector:
     app: nginx
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+    - name: https
+      port: 443
+      targetPort: 443
