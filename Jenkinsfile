@@ -69,13 +69,13 @@ pipeline {
                         string(credentialsId: 'NAVER_CLIENT_SECRET', variable: 'NAVER_CLIENT_SECRET')
                     ]) {
                         // Base64로 환경변수 인코딩
-                        def jwtBase64 = sh(script: "echo -n $JWT_SECRET_KEY | base64", returnStdout: true).trim()
-                        def openaiBase64 = sh(script: "echo -n $OPENAI_API_KEY | base64", returnStdout: true).trim()
-                        def naverClientIdBase64 = sh(script: "echo -n $NAVER_CLIENT_ID | base64", returnStdout: true).trim()
-                        def naverClientSecretBase64 = sh(script: "echo -n $NAVER_CLIENT_SECRET | base64", returnStdout: true).trim()
-                        def dbUrlBase64 = sh(script: "echo -n $DB_URL | base64", returnStdout: true).trim()
-                        def dbUsernameBase64 = sh(script: "echo -n $DB_USERNAME | base64", returnStdout: true).trim()
-                        def dbPasswordBase64 = sh(script: "echo -n $DB_PASSWORD | base64", returnStdout: true).trim()
+                        def jwtBase64 = sh(script: "echo -n '$JWT_SECRET_KEY' | base64 -w 0", returnStdout: true).trim()
+                        def openaiBase64 = sh(script: "echo -n '$OPENAI_API_KEY' | base64 -w 0", returnStdout: true).trim()
+                        def naverClientIdBase64 = sh(script: "echo -n '$NAVER_CLIENT_ID' | base64 -w 0", returnStdout: true).trim()
+                        def naverClientSecretBase64 = sh(script: "echo -n '$NAVER_CLIENT_SECRET' | base64 -w 0", returnStdout: true).trim()
+                        def dbUrlBase64 = sh(script: "echo -n '$DB_URL' | base64 -w 0", returnStdout: true).trim()
+                        def dbUsernameBase64 = sh(script: "echo -n '$DB_USERNAME' | base64 -w 0", returnStdout: true).trim()
+                        def dbPasswordBase64 = sh(script: "echo -n '$DB_PASSWORD' | base64 -w 0", returnStdout: true).trim()
 
                         // secrets.yaml 파일 내용 동적 생성
                         sh """
