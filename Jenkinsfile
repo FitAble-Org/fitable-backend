@@ -54,7 +54,17 @@ pipeline {
             steps {
                 script {
                     def dockerImageName = env.DOCKER_IMAGE_NAME ?: 'fitable'
-                    sh "docker build -t ${dockerImageName}:latest ."
+
+                    // Buildx를 사용하여 멀티플랫폼 빌드 수행
+                    sh '''
+                        docker buildx create --use || true
+                        docker buildx build \
+                            --platform linux/amd64,linux/arm64 \
+                            --build-arg SPRING_REDIS_HOST=172.17.0.2 \
+                            --build-arg SPRING_REDIS_PORT=6379 \
+                            -t ${dockerImageName}:latest \
+                            --push .
+                    '''
                 }
             }
         }
