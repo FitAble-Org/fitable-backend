@@ -5,7 +5,7 @@ pipeline {
         GITHUB_CREDENTIALS_ID = credentials('github-credentials-id')
         GIT_BRANCH = 'dev'
         GITHUB_REPO_URL = 'https://github.com/FitAble-Org/fitable-backend.git'
-        DOCKER_IMAGE_NAME = 'fitable'
+        DOCKER_IMAGE_NAME = 'jaegyeong223/fitable'
         DOCKER_CONTAINER_NAME = 'fitable-container'
         DOCKER_PORT = '8081'
 
@@ -22,7 +22,11 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    git branch: "${GIT_BRANCH}", credentialsId: "${GITHUB_CREDENTIALS_ID}", url: "${GITHUB_REPO_URL}"
+                    checkout scm: [
+                        $class: 'GitSCM',
+                        branches: [[name: "${GIT_BRANCH}"]],
+                        userRemoteConfigs: [[credentialsId: "${GITHUB_CREDENTIALS_ID}", url: "${GITHUB_REPO_URL}"]]
+                    ]
                 }
             }
         }
@@ -53,25 +57,22 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    def dockerImageName = "jaegyeong223/fitable" // Docker Hub 레포지토리 경로
-
-                    withCredentials([usernamePassword(
-                        credentialsId: 'docker-hub-credentials',
-                        usernameVariable: 'DOCKER_USERNAME',
-                        passwordVariable: 'DOCKER_PASSWORD'
-                    )]) {
-                        // Docker Hub 로그인
-                        sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
-
-                        // Docker 이미지 빌드 및 푸시
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: 'docker-hub-credentials',
+                            usernameVariable: 'DOCKER_USERNAME',
+                            passwordVariable: 'DOCKER_PASSWORD'
+                        )
+                    ]) {
                         sh """
-                        docker buildx create --use || true
-                        docker buildx build \
-                            --platform linux/amd64,linux/arm64 \
-                            --build-arg SPRING_REDIS_HOST=172.17.0.2 \
-                            --build-arg SPRING_REDIS_PORT=6379 \
-                            -t ${dockerImageName}:latest \
-                            --push .
+                            echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+                            docker buildx create --use || true
+                            docker buildx build \
+                                --platform linux/amd64,linux/arm64 \
+                                --build-arg SPRING_REDIS_HOST=172.17.0.2 \
+                                --build-arg SPRING_REDIS_PORT=6379 \
+                                -t ${DOCKER_IMAGE_NAME}:latest \
+                                --push .
                         """
                     }
                 }
@@ -87,7 +88,6 @@ pipeline {
                         string(credentialsId: 'NAVER_CLIENT_ID', variable: 'NAVER_CLIENT_ID'),
                         string(credentialsId: 'NAVER_CLIENT_SECRET', variable: 'NAVER_CLIENT_SECRET')
                     ]) {
-                        // Base64 인코딩 및 Kubernetes secrets 생성
                         def secretData = [
                             JWT_SECRET_KEY: env.JWT_SECRET_KEY,
                             OPENAI_API_KEY: env.OPENAI_API_KEY,
@@ -100,7 +100,6 @@ pipeline {
                             [(key): sh(script: "echo -n '${value}' | base64 -w 0", returnStdout: true).trim()]
                         }
 
-                        // secrets.yaml 생성
                         writeFile file: 'k8s/secrets-applied.yaml', text: """
                         apiVersion: v1
                         kind: Secret
@@ -116,14 +115,13 @@ pipeline {
                           DB_PASSWORD: ${secretData.DB_PASSWORD}
                         """
 
-                        // Kubernetes 리소스 적용
                         sh """
-                        kubectl apply -f k8s/namespace.yaml
-                        kubectl apply -f k8s/secrets-applied.yaml
-                        kubectl apply -f k8s/redis.yaml
-                        kubectl apply -f k8s/fitable-app.yaml
-                        kubectl apply -f k8s/nginx.yaml
-                        kubectl apply -f k8s/ingress.yaml
+                            kubectl apply -f k8s/namespace.yaml
+                            kubectl apply -f k8s/secrets-applied.yaml
+                            kubectl apply -f k8s/redis.yaml
+                            kubectl apply -f k8s/fitable-app.yaml
+                            kubectl apply -f k8s/nginx.yaml
+                            kubectl apply -f k8s/ingress.yaml
                         """
                     }
                 }
