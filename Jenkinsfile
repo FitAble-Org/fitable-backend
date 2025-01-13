@@ -55,8 +55,8 @@ pipeline {
                 script {
                     def dockerImageName = env.DOCKER_IMAGE_NAME ?: 'fitable'
 
-                    // Buildx를 사용하여 멀티플랫폼 빌드 수행
-                    sh '''
+                    // Docker 이미지 태그 검증 및 빌드 수행
+                    sh """
                         docker buildx create --use || true
                         docker buildx build \
                             --platform linux/amd64,linux/arm64 \
@@ -64,7 +64,7 @@ pipeline {
                             --build-arg SPRING_REDIS_PORT=6379 \
                             -t ${dockerImageName}:latest \
                             --push .
-                    '''
+                    """
                 }
             }
         }
@@ -78,25 +78,33 @@ pipeline {
                         string(credentialsId: 'NAVER_CLIENT_ID', variable: 'NAVER_CLIENT_ID'),
                         string(credentialsId: 'NAVER_CLIENT_SECRET', variable: 'NAVER_CLIENT_SECRET')
                     ]) {
-                        // Base64로 환경변수 인코딩
-                        def jwtBase64 = sh(script: "echo -n '$JWT_SECRET_KEY' | base64 -w 0", returnStdout: true).trim()
-                        def openaiBase64 = sh(script: "echo -n '$OPENAI_API_KEY' | base64 -w 0", returnStdout: true).trim()
-                        def naverClientIdBase64 = sh(script: "echo -n '$NAVER_CLIENT_ID' | base64 -w 0", returnStdout: true).trim()
-                        def naverClientSecretBase64 = sh(script: "echo -n '$NAVER_CLIENT_SECRET' | base64 -w 0", returnStdout: true).trim()
-                        def dbUrlBase64 = sh(script: "echo -n '$DB_URL' | base64 -w 0", returnStdout: true).trim()
-                        def dbUsernameBase64 = sh(script: "echo -n '$DB_USERNAME' | base64 -w 0", returnStdout: true).trim()
-                        def dbPasswordBase64 = sh(script: "echo -n '$DB_PASSWORD' | base64 -w 0", returnStdout: true).trim()
+                        // Base64 인코딩 및 Kubernetes secrets 생성
+                        def secretData = [
+                            JWT_SECRET_KEY: env.JWT_SECRET_KEY,
+                            OPENAI_API_KEY: env.OPENAI_API_KEY,
+                            NAVER_CLIENT_ID: env.NAVER_CLIENT_ID,
+                            NAVER_CLIENT_SECRET: env.NAVER_CLIENT_SECRET,
+                            DB_URL: env.DB_URL,
+                            DB_USERNAME: env.DB_USERNAME,
+                            DB_PASSWORD: env.DB_PASSWORD
+                        ].collectEntries { key, value ->
+                            [(key): sh(script: "echo -n '${value}' | base64 -w 0", returnStdout: true).trim()]
+                        }
 
-                        // secrets.yaml 파일 내용 동적 생성
-                        sh """
-                        sed -e 's/{{JWT_SECRET_KEY_BASE64}}/${jwtBase64}/g' \
-                            -e 's/{{OPENAI_API_KEY_BASE64}}/${openaiBase64}/g' \
-                            -e 's/{{NAVER_CLIENT_ID_BASE64}}/${naverClientIdBase64}/g' \
-                            -e 's/{{NAVER_CLIENT_SECRET_BASE64}}/${naverClientSecretBase64}/g' \
-                            -e 's/{{DB_URL_BASE64}}/${dbUrlBase64}/g' \
-                            -e 's/{{DB_USERNAME_BASE64}}/${dbUsernameBase64}/g' \
-                            -e 's/{{DB_PASSWORD_BASE64}}/${dbPasswordBase64}/g' \
-                            k8s/secrets.yaml > k8s/secrets-applied.yaml
+                        // secrets.yaml 생성
+                        writeFile file: 'k8s/secrets-applied.yaml', text: """
+                        apiVersion: v1
+                        kind: Secret
+                        metadata:
+                          name: fitable-secrets
+                        data:
+                          JWT_SECRET_KEY: ${secretData.JWT_SECRET_KEY}
+                          OPENAI_API_KEY: ${secretData.OPENAI_API_KEY}
+                          NAVER_CLIENT_ID: ${secretData.NAVER_CLIENT_ID}
+                          NAVER_CLIENT_SECRET: ${secretData.NAVER_CLIENT_SECRET}
+                          DB_URL: ${secretData.DB_URL}
+                          DB_USERNAME: ${secretData.DB_USERNAME}
+                          DB_PASSWORD: ${secretData.DB_PASSWORD}
                         """
 
                         // Kubernetes 리소스 적용
