@@ -53,10 +53,18 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    def dockerImageName = env.DOCKER_IMAGE_NAME ?: 'fitable'
+                    def dockerImageName = "jaegyeong223/fitable" // Docker Hub 레포지토리 경로
 
-                    // Docker 이미지 태그 검증 및 빌드 수행
-                    sh """
+                    withCredentials([usernamePassword(
+                        credentialsId: 'docker-hub-credentials',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )]) {
+                        // Docker Hub 로그인
+                        sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
+
+                        // Docker 이미지 빌드 및 푸시
+                        sh """
                         docker buildx create --use || true
                         docker buildx build \
                             --platform linux/amd64,linux/arm64 \
@@ -64,7 +72,8 @@ pipeline {
                             --build-arg SPRING_REDIS_PORT=6379 \
                             -t ${dockerImageName}:latest \
                             --push .
-                    """
+                        """
+                    }
                 }
             }
         }
