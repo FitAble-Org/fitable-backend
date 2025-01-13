@@ -82,47 +82,49 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    withCredentials([
-                        string(credentialsId: 'JWT_SECRET_KEY', variable: 'JWT_SECRET_KEY'),
-                        string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY'),
-                        string(credentialsId: 'NAVER_CLIENT_ID', variable: 'NAVER_CLIENT_ID'),
-                        string(credentialsId: 'NAVER_CLIENT_SECRET', variable: 'NAVER_CLIENT_SECRET')
-                    ]) {
-                        def secretData = [
-                            JWT_SECRET_KEY: env.JWT_SECRET_KEY,
-                            OPENAI_API_KEY: env.OPENAI_API_KEY,
-                            NAVER_CLIENT_ID: env.NAVER_CLIENT_ID,
-                            NAVER_CLIENT_SECRET: env.NAVER_CLIENT_SECRET,
-                            DB_URL: env.DB_URL,
-                            DB_USERNAME: env.DB_USERNAME,
-                            DB_PASSWORD: env.DB_PASSWORD
-                        ].collectEntries { key, value ->
-                            [(key): sh(script: "echo -n '${value}' | base64 -w 0", returnStdout: true).trim()]
+                    withEnv(["KUBECONFIG=/var/lib/jenkins/k3s.yaml"]) { // KUBECONFIG 환경 변수 설정
+                        withCredentials([
+                            string(credentialsId: 'JWT_SECRET_KEY', variable: 'JWT_SECRET_KEY'),
+                            string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY'),
+                            string(credentialsId: 'NAVER_CLIENT_ID', variable: 'NAVER_CLIENT_ID'),
+                            string(credentialsId: 'NAVER_CLIENT_SECRET', variable: 'NAVER_CLIENT_SECRET')
+                        ]) {
+                            def secretData = [
+                                JWT_SECRET_KEY: env.JWT_SECRET_KEY,
+                                OPENAI_API_KEY: env.OPENAI_API_KEY,
+                                NAVER_CLIENT_ID: env.NAVER_CLIENT_ID,
+                                NAVER_CLIENT_SECRET: env.NAVER_CLIENT_SECRET,
+                                DB_URL: env.DB_URL,
+                                DB_USERNAME: env.DB_USERNAME,
+                                DB_PASSWORD: env.DB_PASSWORD
+                            ].collectEntries { key, value ->
+                                [(key): sh(script: "echo -n '${value}' | base64 -w 0", returnStdout: true).trim()]
+                            }
+
+                            writeFile file: 'k8s/secrets-applied.yaml', text: """
+                            apiVersion: v1
+                            kind: Secret
+                            metadata:
+                              name: fitable-secrets
+                            data:
+                              JWT_SECRET_KEY: ${secretData.JWT_SECRET_KEY}
+                              OPENAI_API_KEY: ${secretData.OPENAI_API_KEY}
+                              NAVER_CLIENT_ID: ${secretData.NAVER_CLIENT_ID}
+                              NAVER_CLIENT_SECRET: ${secretData.NAVER_CLIENT_SECRET}
+                              DB_URL: ${secretData.DB_URL}
+                              DB_USERNAME: ${secretData.DB_USERNAME}
+                              DB_PASSWORD: ${secretData.DB_PASSWORD}
+                            """
+
+                            sh """
+                                kubectl apply -f k8s/namespace.yaml
+                                kubectl apply -f k8s/secrets-applied.yaml
+                                kubectl apply -f k8s/redis.yaml
+                                kubectl apply -f k8s/fitable-app.yaml
+                                kubectl apply -f k8s/nginx.yaml
+                                kubectl apply -f k8s/ingress.yaml
+                            """
                         }
-
-                        writeFile file: 'k8s/secrets-applied.yaml', text: """
-                        apiVersion: v1
-                        kind: Secret
-                        metadata:
-                          name: fitable-secrets
-                        data:
-                          JWT_SECRET_KEY: ${secretData.JWT_SECRET_KEY}
-                          OPENAI_API_KEY: ${secretData.OPENAI_API_KEY}
-                          NAVER_CLIENT_ID: ${secretData.NAVER_CLIENT_ID}
-                          NAVER_CLIENT_SECRET: ${secretData.NAVER_CLIENT_SECRET}
-                          DB_URL: ${secretData.DB_URL}
-                          DB_USERNAME: ${secretData.DB_USERNAME}
-                          DB_PASSWORD: ${secretData.DB_PASSWORD}
-                        """
-
-                        sh """
-                            kubectl apply -f k8s/namespace.yaml
-                            kubectl apply -f k8s/secrets-applied.yaml
-                            kubectl apply -f k8s/redis.yaml
-                            kubectl apply -f k8s/fitable-app.yaml
-                            kubectl apply -f k8s/nginx.yaml
-                            kubectl apply -f k8s/ingress.yaml
-                        """
                     }
                 }
             }
