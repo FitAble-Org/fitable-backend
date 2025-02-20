@@ -3,9 +3,13 @@ package com.fitable.backend.board.service;
 import com.fitable.backend.board.dto.BoardRequest;
 import com.fitable.backend.board.dto.BoardResponse;
 import com.fitable.backend.board.entity.Board;
+import com.fitable.backend.board.entity.QBoard;
+import com.fitable.backend.board.repository.BoardQueryRepository;
 import com.fitable.backend.board.repository.BoardRepository;
+import com.fitable.backend.comment.entity.QComment;
 import com.fitable.backend.user.entity.User;
 import com.fitable.backend.user.repository.UserRepository;
+import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,7 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
+    private final BoardQueryRepository boardQueryRepository;
 
     @Transactional
     public BoardResponse createBoard(BoardRequest boardRequest, UserDetails userDetails) {
@@ -45,12 +50,12 @@ public class BoardService {
 
     @Transactional(readOnly = true)
     public List<BoardResponse> getAllBoards() {
-        List<Object[]> boardsWithCommentCount = boardRepository.findAllBoardsWithCommentCount();
+        List<Tuple> boardsWithCommentCount = boardQueryRepository.findAllBoardsWithCommentCount();
 
         return boardsWithCommentCount.stream()
-                .map(obj -> {
-                    Board board = (Board) obj[0];
-                    Long commentCount = Optional.ofNullable((Long) obj[1]).orElse(0L);
+                .map(tuple -> {
+                    Board board = tuple.get(QBoard.board);
+                    Long commentCount = Optional.ofNullable(tuple.get(QComment.comment.count())).orElse(0L);
                     return mapToResponseDto(board, commentCount);
                 })
                 .collect(Collectors.toList());
