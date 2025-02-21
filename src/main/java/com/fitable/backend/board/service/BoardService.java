@@ -2,6 +2,7 @@ package com.fitable.backend.board.service;
 
 import com.fitable.backend.board.dto.BoardRequest;
 import com.fitable.backend.board.dto.BoardResponse;
+import com.fitable.backend.board.dto.BoardSummaryResponse;
 import com.fitable.backend.board.entity.Board;
 import com.fitable.backend.board.entity.QBoard;
 import com.fitable.backend.board.repository.BoardQueryRepository;
@@ -49,16 +50,8 @@ public class BoardService {
     }
 
     @Transactional(readOnly = true)
-    public List<BoardResponse> getAllBoards() {
-        List<Tuple> boardsWithCommentCount = boardQueryRepository.findAllBoardsWithCommentCount();
-
-        return boardsWithCommentCount.stream()
-                .map(tuple -> {
-                    Board board = tuple.get(QBoard.board);
-                    Long commentCount = Optional.ofNullable(tuple.get(QComment.comment.count())).orElse(0L);
-                    return mapToResponseDto(board, commentCount);
-                })
-                .collect(Collectors.toList());
+    public List<BoardSummaryResponse> getBoardSummaries() {
+        return boardQueryRepository.findBoardSummaries();
     }
 
     @Transactional

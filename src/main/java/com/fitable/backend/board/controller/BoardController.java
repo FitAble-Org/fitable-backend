@@ -2,6 +2,7 @@ package com.fitable.backend.board.controller;
 
 import com.fitable.backend.board.dto.BoardRequest;
 import com.fitable.backend.board.dto.BoardResponse;
+import com.fitable.backend.board.dto.BoardSummaryResponse;
 import com.fitable.backend.board.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,8 +31,8 @@ public class BoardController {
     }
 
     @GetMapping
-    public List<BoardResponse> getAllBoards() {
-        return boardService.getAllBoards();
+    public List<BoardSummaryResponse> getAllBoards() {
+        return boardService.getBoardSummaries();
     }
 
     @PutMapping("/{boardId}")
